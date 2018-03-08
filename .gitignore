@@ -31,3 +31,7 @@ django.db
 celerybeat-schedule.db
 data/static
 _build/
+redis/
+redis.yaml
+README 2.md
+playbooks/
