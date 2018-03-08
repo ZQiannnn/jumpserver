@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^ops/', include('ops.urls.view_urls', namespace='ops')),
     url(r'^settings/', include('common.urls.view_urls', namespace='settings')),
     url(r'^common/', include('common.urls.view_urls', namespace='common')),
+    url(r'^devops/', include('devops.urls.view_urls', namespace='devops')),
 
     # Api url view map
     url(r'^api/users/', include('users.urls.api_urls', namespace='api-users')),
@@ -29,6 +30,7 @@ urlpatterns = [
     url(r'^api/terminal/', include('terminal.urls.api_urls', namespace='api-terminal')),
     url(r'^api/ops/', include('ops.urls.api_urls', namespace='api-ops')),
     url(r'^api/common/', include('common.urls.api_urls', namespace='api-common')),
+    url(r'^api/devops/', include('devops.urls.api_urls', namespace='api-devops')),
 
     # External apps url
     url(r'^captcha/', include('captcha.urls')),

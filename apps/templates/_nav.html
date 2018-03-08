@@ -58,6 +58,18 @@
         <li id="task"><a href="{% url 'ops:task-list' %}">{% trans 'Task list' %}</a></li>
     </ul>
 </li>
+<li id="devops">
+    <a>
+        <i class="fa fa-globe"></i> <span class="nav-label">{% trans 'Ansible' %}</span><span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level">
+        <li id="devops-task"><a href="{% url 'devops:task-list' %}">{% trans 'Tasks' %}</a></li>
+        <li id="devops-vari"><a href="{% url 'devops:variable-list' %}">{% trans 'Variables' %}</a></li>
+        <li id="devops-record"><a href="{% url 'devops:record-list' %}">{% trans 'Records' %}</a></li>
+
+    </ul>
+</li>
+
 {#<li id="">#}
 {#    <a href="#">#}
 {#        <i class="fa fa-download"></i> <span class="nav-label">{% trans 'File' %}</span><span class="fa arrow"></span>#}

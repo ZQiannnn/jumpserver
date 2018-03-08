@@ -14,3 +14,12 @@
         <span class="nav-label">{% trans 'Web terminal' %}</span>
     </a>
 </li>
+<li id="devops">
+    <a>
+        <i class="fa fa-globe"></i> <span class="nav-label">{% trans 'Ansible' %}</span><span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level">
+        <li id="task"><a href="{% url 'devops:task-list' %}">{% trans 'Tasks' %}</a></li>
+        <li id="record"><a href="{% url 'devops:record-list' %}">{% trans 'Records' %}</a></li>
+    </ul>
+</li>

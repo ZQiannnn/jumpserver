@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'ops.apps.OpsConfig',
     'common.apps.CommonConfig',
     'terminal.apps.TerminalConfig',
+    'devops.apps.DevopsConfig',
     'rest_framework',
     'rest_framework_swagger',
     'django_filters',
