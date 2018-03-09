@@ -28,7 +28,8 @@ class PlayBookTask(Task):
     tags = TextSeparatedValuesField(verbose_name=_('Tags'), null=True, blank=True)
     assets = models.ManyToManyField(Asset, verbose_name=_('Assets'), related_name='task', blank=True)
     groups = models.ManyToManyField(Node, verbose_name=_('Asset Groups'), related_name='task', blank=True)
-    run_as = models.CharField(max_length=500, verbose_name=_('Run As User Id'), blank=True, null=True)
+    system_user = models.ForeignKey(SystemUser, null=True, blank=True, verbose_name=_('System User'),
+                                    related_name='task')
 
     def check_password(self, password_raw_):
         if self.password is None or self.password == "":
@@ -38,13 +39,29 @@ class PlayBookTask(Task):
 
 
 class Playbook(AdHoc):
-    playbook_task = models.ForeignKey(PlayBookTask, related_name='playbook', on_delete=models.CASCADE)
-    playbook_path = models.CharField(max_length=1024, default='', verbose_name=_('Playbook Path'))
+    playbook_path = models.CharField(max_length=1000, verbose_name=_('WebHook Password'), blank=True, null=True)
+
+    def __str__(self):
+        return "2222"
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        fields_check = []
+        for field in self.__class__._meta.fields:
+            if field.name not in ['id', 'date_created']:
+                fields_check.append(field)
+        print(fields_check)
+        for field in fields_check:
+            if getattr(self, field.name) != getattr(other, field.name):
+                return False
+        return True
 
 
 class PlaybookRunHistory(AdHocRunHistory):
     """Playbook Task 执行记录 """
-    playbook_task = models.ForeignKey(PlayBookTask, related_name='playbook_history', on_delete=models.SET_NULL, null=True)
+    playbook_task = models.ForeignKey(PlayBookTask, related_name='playbook_history', on_delete=models.SET_NULL,
+                                      null=True)
     playbook = models.ForeignKey(Playbook, related_name='playbook_history', on_delete=models.SET_NULL, null=True)
 
 

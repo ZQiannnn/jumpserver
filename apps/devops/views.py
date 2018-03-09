@@ -65,11 +65,9 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     template_name = 'devops/task_detail.html'
 
     def get_context_data(self, **kwargs):
-        system_user = None
         assets = self.object.assets.all()
         asset_groups = self.object.groups.all()
-        if self.object.run_as is not None:
-            system_user = SystemUser.objects.get(id=self.object.run_as)
+        system_user = self.object.system_user
         context = {
             'app': _('Ansible'),
             'action': _('Task Detail'),

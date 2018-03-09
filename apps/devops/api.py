@@ -178,17 +178,21 @@ class TaskExecuteApi(generics.RetrieveAPIView):
         for group in task.groups.all():
             assets.extend(group.assets.all())
 
+        print(request.user)
+        from jumpserver import middleware
+        print(middleware.get_current_user())
+
         if not request.user.is_superuser:
             #: 普通用户取授权过的assets
-            granted_assets = utils.get_user_granted_assets(user=request.user)
+            granted_assets = utils.get_user_assets(user=request.user)
             #: 取交集
             assets = set(assets).intersection(set(granted_assets))
 
-        if len(assets) == 0:
-            return Response("任务执行的资产为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # if len(assets) == 0:
+        #     return Response("任务执行的资产为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         #: 系统用户不能为空
-        if task.system_user is None:
-            return Response("任务执行的系统用户为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # if task.system_user is None:
+        #     return Response("任务执行的系统用户为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             #: 没有assets和system_user不允许执行
 
         #: 新建一个Record
@@ -219,10 +223,10 @@ class RecordViewSet(viewsets.ModelViewSet):
     permission_classes = (IsValidUser,)
 
     def get_queryset(self):
-        task = self.request.query_params.get('task', '')
+        # task = self.request.query_params.get('task', '')
         queryset = self.queryset
-        if task:
-            queryset = queryset.filter(task_id=task).order_by('-date_start')[:10]
+        # if task:
+        #     queryset = queryset.filter(task_id=task).order_by('-date_start')[:10]
         return queryset
 
 

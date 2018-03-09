@@ -34,7 +34,7 @@ class TaskReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PlayBookTask
-        exclude = ('assets', 'groups', 'password')
+        exclude = ('assets', 'groups', 'password', )
 
     @staticmethod
     def get_ansible_role_name(obj):

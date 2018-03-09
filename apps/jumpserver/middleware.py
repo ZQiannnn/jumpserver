@@ -6,6 +6,13 @@ import pytz
 from django.utils import timezone
 from django.shortcuts import HttpResponse
 
+try:
+    from threading import local
+except ImportError:
+    from django.utils._threading_local import local
+
+_thread_locals = local()
+
 
 class TimezoneMiddleware:
     def __init__(self, get_response):
@@ -13,6 +20,7 @@ class TimezoneMiddleware:
 
     def __call__(self, request):
         tzname = request.META.get('TZ')
+        _thread_locals.user = getattr(request, 'user', None)
         if tzname:
             timezone.activate(pytz.timezone(tzname))
         else:
@@ -45,3 +53,7 @@ class DemoMiddleware:
         else:
             response = self.get_response(request)
             return response
+
+
+def get_current_user():
+    return getattr(_thread_locals, 'user', None)

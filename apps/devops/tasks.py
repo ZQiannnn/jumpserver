@@ -9,9 +9,9 @@ from django.utils.translation import ugettext as _
 def ansible_install_role(role_name, roles_path):
     from ops.utils import update_or_create_ansible_task
 
-    task_name = _("Install Ansible Role")
+    task_name = _('Install Ansible Role')
 
-    hosts = "localhost"
+    hosts = ["localhost"]
 
     tasks = [{
         'name': 'Install Ansible Role {}'.format(role_name),

@@ -272,7 +272,10 @@
                                                 <td colspan="2">
                                                     <button type="button"
                                                             class="btn btn-warning btn-sm btn-system-user">{% trans 'Confirm' %}</button>
+                                                <button type="button"
+                                                            class="btn btn-danger btn-sm btn-del-system-user">{% trans 'Clear' %}</button>
                                                 </td>
+
                                             </tr>
                                         </form>
                                         </tbody>
@@ -406,6 +409,11 @@
         }).on('click', '.btn-system-user', function () {
             var id = $('#system_user_selected').select2('data')[0].id;
             updateTaskSystemUser(id)
+        }).on('click', '.btn-del-system-user', function () {
+            var id = '';
+            updateTaskSystemUser(id)
+            //还原选择
+            $('#system_user_selected').val("").trigger("change");
         }).on('click', '.btn-delete-task', function () {
             let the_url = '{% url "api-devops:task-opt-detail" pk=task.id %}';
             let redirectTo = '{% url 'devops:task-list' %}';
@@ -495,7 +503,7 @@
             let the_url = "{% url 'api-devops:task-execute' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
             let success_message = "正在执行中。。。"
             let error = function (data) {
-                toastr.error(data.responseJSON);
+                toastr.error(data);
             }
             let success = function (data) {
                 location.href = "{% url 'devops:record-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', data);

@@ -178,7 +178,8 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'main',
-            'filename': os.path.join(CONFIG.LOG_DIR, 'jumpserver.log')
+            'filename': os.path.join(CONFIG.LOG_DIR, 'jumpserver.log'),
+            'encoding': 'utf8'
         },
         'ansible_logs': {
             'level': 'DEBUG',
