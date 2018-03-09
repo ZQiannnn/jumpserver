@@ -30,8 +30,6 @@ def ansible_install_role(role_name, roles_path):
 
     summary = result[1]
 
-    print(summary)
-
     if summary.get('dark'):
         return False, summary['dark']
     else:
