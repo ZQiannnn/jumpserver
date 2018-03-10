@@ -88,6 +88,7 @@
                                             <tr>
                                                 <th class="text-center">{% trans 'KEY' %}</th>
                                                 <th class="text-center">{% trans 'VALUE' %}</th>
+                                                <th class="text-center">{% trans 'DESC' %}</th>
                                                 <th class="text-center" width="70px">{% trans 'Action' %}</th>
                                             </tr>
                                             </thead>
@@ -124,6 +125,15 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="col-sm-2 control-label"
+                                                   for="input_varDesc">{% trans 'DESC' %}:</label>
+                                            <div class="col-sm-10">
+                                                <input id="input_varDesc" type="text" name="desc"
+                                                       class="form-control">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
                                             <div class="col-sm-4 col-sm-offset-2">
                                                 <button id="submit_btn" class="btn btn-primary"
                                                         type="submit">{% trans 'Confirm' %}
@@ -159,11 +169,20 @@
                         targets: 1,
                         orderable: false,
                         createdCell: function (td, cellData, rowData) {
-                            $(td).html(cellData);
+                            var index = cellData.lastIndexOf("-")
+                            $(td).html(cellData.substring(0,index));
                         }
                     },
                     {
                         targets: 2,
+                        orderable: false,
+                        createdCell: function (td, cellData, rowData) {
+                            var index = cellData.lastIndexOf("-")
+                            $(td).html(cellData.substring(index+1,cellData.length));
+                        }
+                    },
+                    {
+                        targets: 3,
                         orderable: false,
                         createdCell: function (td, cellData, rowData) {
                             let del_btn = '<a class="btn btn-xs btn-danger m-l-xs btn-vars-delete" data-uid="99991937" >{% trans "Delete" %}</a>'
@@ -173,7 +192,7 @@
                         }
                     }
                 ],
-                columns: [{data: "key"}, {data: "value"}, {data: "key"}],
+                columns: [{data: "key"}, {data: "value"},{data: "value"}, {data: "key"}],
                 ajax_url: '{% url "api-devops:variable-vars" pk=variable.id %}',
                 order: [[0, 'asc']],
                 dom: '<"#uc.pull-left">ft<"row m-t"<"col-md-8"<"#op.col-md-6"><"col-md-6 text-center"i>><"col-md-4"p>>',

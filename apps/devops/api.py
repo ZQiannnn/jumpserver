@@ -228,7 +228,7 @@ class VariableAddVarsApi(generics.UpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         variable = self.get_object()
-        variable.vars.update({request.data['key']: request.data['value']})
+        variable.vars.update({request.data['key']: request.data['value'] + "-" + request.data.get('desc', '')})
         variable.save()
         return Response(variable.vars, status=status.HTTP_200_OK)
 
