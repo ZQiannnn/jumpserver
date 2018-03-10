@@ -1,10 +1,11 @@
 # ~*~ coding: utf-8 ~*~
-
-
+import _thread
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.views import Response
 
+from common.utils import get_object_or_none
+from devops.models import Playbook
 from .hands import IsSuperUser
 from .models import Task, AdHoc, AdHocRunHistory
 from .serializers import TaskSerializer, AdHocSerializer, AdHocRunHistorySerializer
@@ -24,7 +25,13 @@ class TaskRun(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
-        run_ansible_task.delay(str(task.id), request.user.id)
+        playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
+        if playbook and playbook.is_running:
+            return Response('任务正在执行中，请查看作业中心...', status=status.HTTP_400_BAD_REQUEST)
+        if playbook:
+            _thread.start_new_thread(run_ansible_task, (str(task.id), request.user.id,))
+        else:
+            run_ansible_task.delay(str(task.id), request.user.id)
         return Response({"msg": "start"})
 
 

@@ -3,7 +3,7 @@ from celery import shared_task, subtask
 
 from common.utils import get_logger, get_object_or_none
 from .models import Task
-from devops.models import PlayBookTask
+from devops.models import PlayBookTask,Playbook
 
 logger = get_logger(__file__)
 
@@ -23,6 +23,9 @@ def run_ansible_task(task_id, current_user=None, callback=None, **kwargs):
 
     task = get_object_or_none(PlayBookTask, id=task_id)
     if task:
+        playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
+        playbook.is_running = True
+        playbook.save()
         result = task.run(current_user=current_user)
         if callback is not None:
             subtask(callback).delay(result, task_name=task.name)

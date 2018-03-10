@@ -3,6 +3,7 @@
 import os
 from collections import OrderedDict
 
+import _thread
 import yaml
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -17,6 +18,7 @@ from .serializers import *
 from .tasks import ansible_install_role
 from .utils import create_update_task_playbook
 from ops.tasks import run_ansible_task
+from common.utils import get_object_or_none
 
 
 class TaskListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -158,6 +160,18 @@ class TaskUpdateGroupApi(generics.RetrieveUpdateAPIView):
         return response
 
 
+class TaskStatusApi(generics.RetrieveAPIView):
+    """Task update it's group api"""
+    queryset = PlayBookTask.objects.all()
+    serializer_class = TaskUpdateGroupSerializer
+    permission_classes = (IsSuperUser,)
+
+    def retrieve(self, request, *args, **kwargs):
+        task = self.get_object()
+        playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
+        return Response({'is_running':playbook.is_running}, status=status.HTTP_200_OK)
+
+
 class TaskUpdateAssetApi(generics.RetrieveUpdateAPIView):
     """Task update it's asset api"""
     queryset = PlayBookTask.objects.all()
@@ -287,6 +301,6 @@ class TaskWebhookApi(generics.GenericAPIView):
         if not result:
             return Response("任务密码不匹配", status=status.HTTP_400_BAD_REQUEST)
 
-        run_ansible_task.delay(str(task.id))
+        _thread.start_new_thread(run_ansible_task, (str(task.id), request.user.id,))
 
         return Response(status=status.HTTP_200_OK)

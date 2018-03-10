@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jumpserver 0.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 21:15+0800\n"
+"POT-Creation-Date: 2018-03-10 22:26+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: ibuler <ibuler@qq.com>\n"
 "Language-Team: Jumpserver team<ibuler@qq.com>\n"
@@ -25,7 +25,7 @@ msgstr "新节点 {}"
 #: assets/models/asset.py:53 assets/models/user.py:218
 #: assets/templates/assets/asset_detail.html:181
 #: assets/templates/assets/asset_detail.html:189
-#: assets/templates/assets/system_user_detail.html:166 devops/models.py:177
+#: assets/templates/assets/system_user_detail.html:166 devops/models.py:188
 msgid "Nodes"
 msgstr "节点管理"
 
@@ -123,8 +123,7 @@ msgstr "密码和私钥, 必须输入一个"
 #: assets/templates/assets/system_user_list.html:24 common/models.py:26
 #: common/templates/common/terminal_setting.html:67
 #: common/templates/common/terminal_setting.html:85 devops/models.py:27
-#: devops/models.py:173
-#: devops/templates/devops/task_detail.html:69
+#: devops/models.py:184 devops/templates/devops/task_detail.html:69
 #: devops/templates/devops/task_detail.html:139
 #: devops/templates/devops/task_list.html:17
 #: devops/templates/devops/variable_asset.html:86
@@ -495,8 +494,9 @@ msgstr "仅修改你需要更新的字段"
 #: assets/views/asset.py:195 assets/views/label.py:26 assets/views/label.py:42
 #: assets/views/label.py:58 assets/views/system_user.py:28
 #: assets/views/system_user.py:44 assets/views/system_user.py:60
-#: assets/views/system_user.py:74 devops/models.py:39 devops/models.py:176
-#: templates/_nav.html:20
+#: assets/views/system_user.py:74 devops/models.py:39 devops/models.py:187
+#: devops/templates/devops/variable_asset.html:22
+#: devops/templates/devops/variable_detail.html:23 templates/_nav.html:20
 msgid "Assets"
 msgstr "资产管理"
 
@@ -654,6 +654,7 @@ msgstr "提交"
 #: assets/templates/assets/label_list.html:38
 #: assets/templates/assets/system_user_detail.html:26
 #: assets/templates/assets/system_user_list.html:85
+#: devops/templates/devops/task_detail.html:31
 #: devops/templates/devops/task_list.html:65
 #: devops/templates/devops/variable_list.html:66
 #: perms/templates/perms/asset_permission_detail.html:30
@@ -675,6 +676,7 @@ msgstr "更新"
 #: assets/templates/assets/label_list.html:39
 #: assets/templates/assets/system_user_detail.html:30
 #: assets/templates/assets/system_user_list.html:86
+#: devops/templates/devops/task_detail.html:25
 #: devops/templates/devops/task_list.html:67
 #: devops/templates/devops/variable_asset.html:206
 #: devops/templates/devops/variable_asset.html:230
@@ -1323,7 +1325,7 @@ msgstr "系统设置"
 msgid "Update setting successfully, please restart program"
 msgstr "更新设置成功, 请手动重启程序"
 
-#: devops/models.py:34 devops/models.py:174
+#: devops/models.py:34 devops/models.py:185
 #: devops/templates/devops/task_detail.html:73
 #: devops/templates/devops/task_list.html:18
 #: devops/templates/devops/variable_detail.html:59
@@ -1351,8 +1353,6 @@ msgid "Asset Groups"
 msgstr "资产组"
 
 #: devops/models.py:41
-
-
 msgid "System User"
 msgstr "系统用户"
 
@@ -1360,7 +1360,11 @@ msgstr "系统用户"
 msgid "Playbook Path"
 msgstr ""
 
-#: devops/models.py:175 devops/templates/devops/variable_detail.html:69
+#: devops/models.py:64
+msgid "Is running"
+msgstr ""
+
+#: devops/models.py:186 devops/templates/devops/variable_detail.html:69
 msgid "Vars"
 msgstr "变量"
 
@@ -1398,71 +1402,15 @@ msgstr "Ansible"
 msgid "Role Name"
 msgstr "角色名称"
 
-msgid "Task record detail"
-msgstr "任务详情"
-
-
-#: devops/templates/devops/task_detail.html:142
-#: ops/templates/ops/adhoc_history.html:52
-#: ops/templates/ops/adhoc_history_detail.html:58
-#: ops/templates/ops/task_history.html:55 terminal/models.py:132
-#: terminal/templates/terminal/session_list.html:77
-msgid "Date start"
-msgstr "开始日期"
-
-
-#: ops/templates/ops/adhoc_detail.html:102
-#: ops/templates/ops/adhoc_history_detail.html:62
-#: ops/templates/ops/task_detail.html:76
-msgid "Time delta"
-msgstr "运行时间"
-
-#: ops/templates/ops/adhoc_detail.html:106
-#: ops/templates/ops/adhoc_history.html:55
-#: ops/templates/ops/adhoc_history_detail.html:66
-#: ops/templates/ops/task_detail.html:80 ops/templates/ops/task_history.html:58
-msgid "Is finished"
-msgstr "是否完成"
-
-#: ops/templates/ops/adhoc_detail.html:110
-#: ops/templates/ops/adhoc_history_detail.html:70
-#: ops/templates/ops/task_detail.html:84
-msgid "Is success "
-msgstr "成功"
-
-#: ops/templates/ops/adhoc_history_detail.html:81
-msgid "Failed assets"
-msgstr "失败资产"
-
-#: ops/templates/ops/adhoc_history_detail.html:101
-#: ops/templates/ops/adhoc_history_detail.html:126
-msgid "No assets"
-msgstr "没有资产"
-
-#: ops/templates/ops/adhoc_history_detail.html:111
-msgid "Success assets"
-msgstr "成功资产"
-
-#: devops/templates/devops/task_detail.html:140
-#: ops/templates/ops/task_list.html:38
-msgid "Success"
-msgstr "成功"
-
-#: devops/templates/devops/task_detail.html:141
-msgid "Finished"
-msgstr "是否完成"
-
-#: devops/templates/devops/task_detail.html:143 ops/models.py:309
-#: ops/templates/ops/adhoc_history.html:57
-#: ops/templates/ops/task_history.html:60 ops/templates/ops/task_list.html:40
-msgid "Time"
-msgstr "时间"
-
-
 #: devops/templates/devops/task_detail.html:20
 #: devops/templates/devops/task_detail.html:50 devops/views.py:74
 msgid "Task Detail"
 msgstr "任务详情"
+
+#: devops/templates/devops/task_detail.html:36
+#: devops/templates/devops/task_list.html:61
+msgid "Execute"
+msgstr "执行"
 
 #: devops/templates/devops/task_detail.html:86
 #: devops/templates/devops/task_detail.html:154
@@ -1482,6 +1430,30 @@ msgstr "任务系统用户"
 #: devops/templates/devops/task_detail.html:118
 msgid "Recent Records"
 msgstr "近期执行记录"
+
+#: devops/templates/devops/task_detail.html:140
+#: ops/templates/ops/task_list.html:38
+msgid "Success"
+msgstr "成功"
+
+#: devops/templates/devops/task_detail.html:141
+#: ops/templates/ops/task_detail.html:74
+msgid "Finished"
+msgstr "是否完成"
+
+#: devops/templates/devops/task_detail.html:142
+#: ops/templates/ops/adhoc_history.html:52
+#: ops/templates/ops/adhoc_history_detail.html:58
+#: ops/templates/ops/task_history.html:55 terminal/models.py:132
+#: terminal/templates/terminal/session_list.html:77
+msgid "Date start"
+msgstr "开始日期"
+
+#: devops/templates/devops/task_detail.html:143 ops/models.py:309
+#: ops/templates/ops/adhoc_history.html:57
+#: ops/templates/ops/task_history.html:60 ops/templates/ops/task_list.html:40
+msgid "Time"
+msgstr "时间"
 
 #: devops/templates/devops/task_detail.html:209
 #: devops/templates/devops/variable_asset.html:141
@@ -1505,24 +1477,11 @@ msgstr ""
 msgid "Create Task"
 msgstr "创建任务"
 
-#: devops/templates/devops/task_list.html:61
-msgid "Execute"
-msgstr "执行"
-
-#: devops/templates/devops/variable_asset.html:22
-#: devops/templates/devops/variable_detail.html:23
-
-msgid "Attached assets"
-msgstr "失败资产"
-
 #: devops/templates/devops/variable_asset.html:98
-
 msgid "Attach to assets "
 msgstr "没有资产"
 
 #: devops/templates/devops/variable_asset.html:133
-
-
 msgid "Attach to asset groups"
 msgstr "选择资产组"
 
@@ -1626,6 +1585,13 @@ msgstr "开始时间"
 msgid "End time"
 msgstr "完成时间"
 
+#: ops/models.py:310 ops/templates/ops/adhoc_detail.html:106
+#: ops/templates/ops/adhoc_history.html:55
+#: ops/templates/ops/adhoc_history_detail.html:66
+#: ops/templates/ops/task_detail.html:93 ops/templates/ops/task_history.html:58
+msgid "Is finished"
+msgstr "是否完成"
+
 #: ops/models.py:311 ops/templates/ops/adhoc_history.html:56
 #: ops/templates/ops/task_history.html:59
 msgid "Is success"
@@ -1661,24 +1627,36 @@ msgstr "ID"
 msgid "Run times"
 msgstr "执行次数"
 
-#: ops/templates/ops/adhoc_detail.html:98 ops/templates/ops/task_detail.html:72
+#: ops/templates/ops/adhoc_detail.html:98 ops/templates/ops/task_detail.html:85
 msgid "Last run"
 msgstr "最后运行"
 
+#: ops/templates/ops/adhoc_detail.html:102
+#: ops/templates/ops/adhoc_history_detail.html:62
+#: ops/templates/ops/task_detail.html:89
+msgid "Time delta"
+msgstr "运行时间"
+
+#: ops/templates/ops/adhoc_detail.html:110
+#: ops/templates/ops/adhoc_history_detail.html:70
+#: ops/templates/ops/task_detail.html:97
+msgid "Is success "
+msgstr "成功"
+
 #: ops/templates/ops/adhoc_detail.html:131
-#: ops/templates/ops/task_detail.html:105
+#: ops/templates/ops/task_detail.html:118
 msgid "Last run failed hosts"
 msgstr "最后运行失败主机"
 
 #: ops/templates/ops/adhoc_detail.html:151
 #: ops/templates/ops/adhoc_detail.html:176
-#: ops/templates/ops/task_detail.html:125
-#: ops/templates/ops/task_detail.html:150
+#: ops/templates/ops/task_detail.html:138
+#: ops/templates/ops/task_detail.html:163
 msgid "No hosts"
 msgstr "没有主机"
 
 #: ops/templates/ops/adhoc_detail.html:161
-#: ops/templates/ops/task_detail.html:135
+#: ops/templates/ops/task_detail.html:148
 msgid "Last run success hosts"
 msgstr "最后运行成功主机"
 
@@ -1709,6 +1687,19 @@ msgstr "执行历史详情"
 #: ops/templates/ops/adhoc_history_detail.html:50
 msgid "Task name"
 msgstr "任务名称"
+
+#: ops/templates/ops/adhoc_history_detail.html:81
+msgid "Failed assets"
+msgstr "失败资产"
+
+#: ops/templates/ops/adhoc_history_detail.html:101
+#: ops/templates/ops/adhoc_history_detail.html:126
+msgid "No assets"
+msgstr "没有资产"
+
+#: ops/templates/ops/adhoc_history_detail.html:111
+msgid "Success assets"
+msgstr "成功资产"
 
 #: ops/templates/ops/task_adhoc.html:19 ops/templates/ops/task_detail.html:19
 #: ops/templates/ops/task_history.html:19 ops/views.py:53
@@ -1743,9 +1734,17 @@ msgstr "版本数量"
 msgid "Latest version"
 msgstr "最新版本"
 
-#: ops/templates/ops/task_detail.html:88
+#: ops/templates/ops/task_detail.html:72
+msgid "Is running "
+msgstr "正在运行"
+
+#: ops/templates/ops/task_detail.html:101
 msgid "Contents"
 msgstr "内容"
+
+#: ops/templates/ops/task_detail.html:185
+msgid "Over"
+msgstr "已结束"
 
 #: ops/templates/ops/task_list.html:20 ops/templates/ops/task_list.html:25
 #: templates/_base_list.html:43 templates/_header_bar.html:8
@@ -2879,6 +2878,12 @@ msgstr "密码更新"
 #: users/views/user.py:374
 msgid "Public key update"
 msgstr "密钥更新"
+
+#~ msgid "Task record detail"
+#~ msgstr "任务详情"
+
+#~ msgid "Attached assets"
+#~ msgstr "失败资产"
 
 #~ msgid "Create asset permission "
 #~ msgstr "创建资产权限"

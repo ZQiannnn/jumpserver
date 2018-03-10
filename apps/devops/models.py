@@ -61,6 +61,7 @@ class PlayBookTask(Task):
 
 class Playbook(AdHoc):
     playbook_path = models.CharField(max_length=1000, verbose_name=_('Playbook Path'), blank=True, null=True)
+    is_running = models.BooleanField(default=False, verbose_name=_('Is running'))
 
     @property
     def inventory(self):
@@ -85,28 +86,30 @@ class Playbook(AdHoc):
     def run(self, current_user=None, record=True):
         self.current_user = User.objects.get(id=current_user)
         if record:
-            return self._run_and_record()
+            result, summary = self._run_and_record()
+            return result, summary
         else:
-            return self._run_only()
+            result, summary = self._run_only()
+
+            return result, summary
 
     def _run_and_record(self):
         history = AdHocRunHistory(adhoc=self, task=self.task)
         time_start = time.time()
         try:
-            result, output = self._run_only()
+            result, summary = self._run_only()
             history.is_finished = True
-            summary = self._clean_result(output)
-
             if len(summary.get('dark')) != 0:
                 history.is_success = False
             else:
                 history.is_success = True
-
             result = str(json.dumps(result, indent=4, ensure_ascii=False))
             history.result = result
             history.summary = summary
             return result, summary
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {}, {"dark": {"all": {"msg": str(e)}}, "contacted": []}
         finally:
             history.date_finished = timezone.now()
@@ -144,9 +147,16 @@ class Playbook(AdHoc):
         runner = PlayBookRunner(self.inventory, options)
         try:
             result, output = runner.run()
-            return result, output
+            summary = self._clean_result(output)
+            self.is_running = False
+            self.save()
+            return result, summary
         except AnsibleError as e:
+            import traceback
+            traceback.print_exc()
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
+            self.is_running = False
+            self.save()
             pass
 
     def __str__(self):
@@ -157,7 +167,6 @@ class Playbook(AdHoc):
         if not isinstance(self, other.__class__):
             return False
         if not isinstance(other, self.__class__):
-            print(other.id)
             instance = Playbook.objects.get(id=other.id)
         fields_check = []
         for field in self.__class__._meta.fields:
