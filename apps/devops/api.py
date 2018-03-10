@@ -1,24 +1,22 @@
 # ~*~ coding: utf-8 ~*~
 
-import uuid
+import os
 from collections import OrderedDict
 
+import yaml
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from rest_framework import permissions
 from rest_framework import status
-from rest_framework import viewsets, generics, mixins, views
+from rest_framework import viewsets, generics, mixins
 from rest_framework.response import Response
 
-from .hands import IsSuperUser, IsSuperUserOrAppUser, IsValidUser
-from rest_framework import permissions
+from .hands import IsSuperUser, IsValidUser
 from .serializers import *
-import yaml
-import os
-from perms import utils
-from django.conf import settings
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.contrib.auth.hashers import make_password, check_password
 from .tasks import ansible_install_role
 from .utils import create_update_task_playbook
+from ops.tasks import run_ansible_task
 
 
 class TaskListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -184,19 +182,6 @@ class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
         return response
 
 
-class RecordViewSet(viewsets.ModelViewSet):
-    # queryset = Record.objects.all()
-    serializer_class = RecordSerializer
-    permission_classes = (IsValidUser,)
-
-    def get_queryset(self):
-        # task = self.request.query_params.get('task', '')
-        queryset = self.queryset
-        # if task:
-        #     queryset = queryset.filter(task_id=task).order_by('-date_start')[:10]
-        return queryset
-
-
 class VariableViewSet(viewsets.ModelViewSet):
     queryset = Variable.objects.all()
     serializer_class = VariableSerializer
@@ -294,49 +279,14 @@ class TaskWebhookApi(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         task = self.get_object()
-        #: 计算assets
-        #: 超级用户直接取task所有assets
-        assets = list(task.assets.all())
 
         password_raw = request.data['password']
 
         result = task.check_password(password_raw)  # check_password 返回值为一个Bool类型，验证密码的正确与否
-        #: 新建一个Record
-        uuid_str = str(uuid.uuid4())
 
-        playbook_path = '../playbooks/task_%d.yml' % task.id
-        task_name = "%s %s #%d" % (task.name, 'WebHook', task.counts + 1)
-        with open(playbook_path) as f:
-            playbook_json = yaml.load(f)
-        # task_record = Record(uuid=uuid_str,
-        #                      name=task_name,
-        #                      assets=','.join(str(asset._to_secret_json()['id']) for asset in assets),
-        #                      module_args=[('playbook', playbook_json)])
-        # task_record.task = task
+        if not result:
+            return Response("任务密码不匹配", status=status.HTTP_400_BAD_REQUEST)
 
-        # if not result:
-        #     task_record.is_success = False
-        #     task_record.is_finished = False
-        #     task_record.result = {"msg": "任务密码不匹配", "data": kwargs}
-        #     return Response("任务密码不匹配", status=status.HTTP_400_BAD_REQUEST)
-        # if len(assets) == 0:
-        #     task_record.is_success = False
-        #     task_record.is_finished = False
-        #     task_record.result = {"msg": "任务执行的资产为空", "data": kwargs}
-        #     return Response("任务执行的资产为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # #: 系统用户不能为空
-        # if task.system_user is None:
-        #     task_record.is_success = False
-        #     task_record.is_finished = False
-        #     task_record.result = {"msg": "任务执行的系统用户为空", "data": kwargs}
-        #     return Response("任务执行的系统用户为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        #     #: 没有assets和system_user不允许执行
-        #
-        # task_record.save()
+        run_ansible_task.delay(str(task.id))
 
-        # ansible_task_execute.delay(task.id, [asset._to_secret_json() for asset in assets],
-        #                            task.system_user.username, task_name, task.tags, uuid_str)
-        # task.counts += 1
-        # task.save()
-
-        return Response(uuid_str, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)

@@ -65,12 +65,6 @@ class TaskUpdateSystemUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'system_user']
 
 
-class RecordSerializer(serializers.ModelSerializer):
-    class Meta:
-        # model = Record
-        fields = '__all__'
-
-
 class VariableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Variable
