@@ -169,7 +169,6 @@ class PlaybookInventory(BaseInventory):
         self.host_list = host_list
         self.set_all_variables()
         super().__init__(host_list=host_list)
-        print(self.host_list)
 
     def get_jms_assets(self):
         assets = []
@@ -229,7 +228,6 @@ class PlaybookInventory(BaseInventory):
                     Variable.objects.filter(groups=Node.objects.get(value=group)))
                 if len(variable) > 0:
                     for key, value in variable[0].vars.items():
-                        print(group, key, value)
                         variables.update({key: value})
             # 机器的变量
             variable = list(

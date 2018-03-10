@@ -8,6 +8,7 @@ class AdHocResultCallback(CallbackModule):
     """
     Task result Callback
     """
+
     def __init__(self, display=None, options=None):
         # result_raw example: {
         #   "ok": {"hostname": {"task_name": {}，...},..},
@@ -70,6 +71,7 @@ class CommandResultCallback(AdHocResultCallback):
     """
     Command result callback
     """
+
     def __init__(self, display=None):
         # results_command: {
         #   "cmd": "",
@@ -161,27 +163,27 @@ class PlaybookResultCallBack(CallbackBase):
                 'stats': summary
             }
 
-    def gather_result(self, res):
+    def gather_result(self, res, status=''):
         if res._task.loop and "results" in res._result and res._host.name in self.item_results:
             res._result.update({"results": self.item_results[res._host.name]})
             del self.item_results[res._host.name]
-
+        res._result['status'] = status
         self.results[-1]['tasks'][-1]['hosts'][res._host.name] = res._result
 
     def v2_runner_on_ok(self, res, **kwargs):
         if "ansible_facts" in res._result:
             del res._result["ansible_facts"]
 
-        self.gather_result(res)
+        self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
-        self.gather_result(res)
+        self.gather_result(res, 'failed')
 
     def v2_runner_on_unreachable(self, res, **kwargs):
-        self.gather_result(res)
+        self.gather_result(res, 'unreachable')
 
     def v2_runner_on_skipped(self, res, **kwargs):
-        self.gather_result(res)
+        self.gather_result(res, 'skipped')
 
     def gather_item_result(self, res):
         self.item_results.setdefault(res._host.name, []).append(res._result)
@@ -194,6 +196,3 @@ class PlaybookResultCallBack(CallbackBase):
 
     def v2_runner_item_on_skipped(self, res):
         self.gather_item_result(res)
-
-
-

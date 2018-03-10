@@ -113,7 +113,7 @@ class PlayBookRunner:
             executor._tqm._stdout_callback = self.results_callback
         executor.run()
         executor._tqm.cleanup()
-        return self.results_callback.output
+        return self.results_callback.results[0], self.results_callback.output
 
 
 class AdHocRunner:

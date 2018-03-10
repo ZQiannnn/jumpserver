@@ -11,6 +11,9 @@ from common.utils import get_signer, get_logger
 from .ansible.inventory import PlaybookInventory
 from ops.models import Task, AdHoc, AdHocRunHistory
 from .ansible import AdHocRunner, AnsibleError, PlayBookRunner, get_default_options
+import time
+from django.utils import timezone
+import json
 
 logger = get_logger(__file__)
 signer = get_signer()
@@ -78,7 +81,55 @@ class Playbook(AdHoc):
         return PlayBookTask.objects.get(id=self.task.id)
 
     def _run_and_record(self):
-        return self._run_only()
+        history = AdHocRunHistory(adhoc=self, task=self.task)
+        time_start = time.time()
+        try:
+            result, output = self._run_only()
+            history.is_finished = True
+            summary = self._clean_result(output)
+
+            if len(summary.get('dark')) != 0:
+                history.is_success = False
+            else:
+                history.is_success = True
+
+            result = str(json.dumps(result, indent=4, ensure_ascii=False))
+            history.result = result
+            history.summary = summary
+            return result, summary
+        except Exception as e:
+            return {}, {"dark": {"all": {"msg": str(e)}}, "contacted": []}
+        finally:
+            history.date_finished = timezone.now()
+            history.timedelta = time.time() - time_start
+            history.save()
+
+    def _clean_result(self, output):
+        """
+                :return: {
+                    "contacted": ['hostname',],
+                    "dark": {'hostname':{'task1':{'msg':''}}},
+                }
+                """
+        result = {'contacted': [], 'dark': {}}
+
+        for task in output['plays'][0]['tasks']:
+            for host, detail in task.get('hosts', {}).items():
+                if detail.get('status') == 'failed' or detail.get('status') == 'unreachable':
+                    if not result['dark'].get(host):
+                        result['dark'][host] = {}
+                    # 找到每个task对应的失败host与消息
+                    host_data = result['dark'].get(host)
+                    print(1, host_data, result['dark'])
+                    host_data[task['task'].get('name', '')] = {
+                        'msg': '%s => %s' % (detail.get('msg', ''), detail.get('stderr_lines', ''))}
+                    print(2, host_data, result['dark'])
+
+        print(result['dark'])
+        for host, stat in output['stats'].items():
+            if stat['unreachable'] == 0 and stat['failures'] == 0:
+                result['contacted'].append(host)
+        return result
 
     def _run_only(self):
         options = get_default_options()
@@ -86,9 +137,8 @@ class Playbook(AdHoc):
         options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         runner = PlayBookRunner(self.inventory, options)
         try:
-            result = runner.run()
-            print(result)
-            return result
+            result, output = runner.run()
+            return result, output
         except AnsibleError as e:
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
             pass
