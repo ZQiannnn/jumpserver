@@ -22,18 +22,18 @@
                         {% if request.user.is_superuser %}
                             <li class="pull-right">
                                 <a class="btn btn-outline btn-danger btn-delete-task">
-                                    <i class="fa fa-remove"></i>Delete
+                                    <i class="fa fa-remove"></i>{% trans 'Delete' %}
                                 </a>
                             </li>
                             <li class="pull-right">
                                 <a class="btn btn-outline btn-default"
                                    href="{% url 'devops:task-update' pk=task.id %}"><i
-                                        class="fa fa-edit"></i>Update</a>
+                                        class="fa fa-edit"></i>{% trans 'Update' %}</a>
                             </li>
                         {% endif %}
                         <li class="pull-right">
                             <a class="btn btn-outline btn-primary btn-execute-task">
-                                <i class="fa fa-cube"></i>Execute
+                                <i class="fa fa-cube"></i>{% trans 'Execute' %}
                             </a>
                         </li>
                     </ul>
@@ -313,8 +313,8 @@
                     },
                     {
                         targets: 1, createdCell: function (td, cellData, rowData) {
-                        var detail_btn = '<a href="{% url "devops:record-detail" pk=99991937 %}" >' + cellData + '</a>';
-                        $(td).html(detail_btn.replace('99991937', rowData.uuid));
+                        {#var detail_btn = '<a href="{% url "devops:record-detail" pk=99991937 %}" >' + cellData + '</a>';#}
+                        $(td).html(rowData.replace('99991937', rowData.uuid));
                     }
                     },
                     {
@@ -346,7 +346,7 @@
                     }
                     }
                 ],
-                ajax_url: '{% url "api-devops:record-list" %}?task={{ task.id }}',
+                {#ajax_url: '{% url "api-devops:record-list" %}?task={{ task.id }}',#}
                 columns: [{data: "uuid"}, {data: "name"}, {data: "is_success"}, {data: "is_finished"}, {data: "date_start"}, {data: "timedelta"}],
                 dom: '<"#uc.pull-left">t<"row m-t"<"col-md-8"<"#op.col-md-6"><"col-md-6 text-center"i>><"col-md-4"p>>',
             };
