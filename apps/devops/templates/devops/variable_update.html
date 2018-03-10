@@ -29,7 +29,7 @@
                 location.href = "{% url 'devops:variable-list' %}";
             }
             let error = function (data) {
-                APIFormError(data.responseJSON)
+                APIFormError(data)
             }
             APIUpdateAttr({
                 url: the_url,

@@ -13,6 +13,7 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.conf import settings
 from .forms import *
 from .models import *
+from assets.models import *
 from .hands import *
 
 logger = logging.getLogger(__name__)

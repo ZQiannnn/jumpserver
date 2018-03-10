@@ -1,16 +1,21 @@
 # ~*~ coding: utf-8 ~*~
-import json
 
-from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
-
 from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
 from separatedvaluesfield.models import TextSeparatedValuesField
+
 from assets.models import *
 from assets.models.user import AssetUser
+from common.utils import get_signer, get_logger
+from .ansible.inventory import PlaybookInventory
 from ops.models import Task, AdHoc, AdHocRunHistory
-from collections import OrderedDict
-from jsonfield import JSONField
+from .ansible import AdHocRunner, AnsibleError, PlayBookRunner, get_default_options
+
+logger = get_logger(__file__)
+signer = get_signer()
+
+__all__ = ["AnsibleRole", "PlayBookTask", "Playbook", "Variable", "PlaybookRunHistory"]
 
 
 class AnsibleRole(models.Model):
@@ -37,23 +42,72 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
-
-class Playbook(AdHoc):
-    playbook_path = models.CharField(max_length=1000, verbose_name=_('WebHook Password'), blank=True, null=True)
-
-    def __str__(self):
-        return "2222"
+    def run(self, record=True):
+        if self.latest_adhoc:
+            return Playbook.objects.get(id=self.latest_adhoc.id).run(record=record)
+        else:
+            return {'error': 'No adhoc'}
 
     def __eq__(self, other):
-        if not isinstance(other, self.__class__):
+        if not isinstance(self, other.__class__):
             return False
+        return self.id == other.id
+
+
+class Playbook(AdHoc):
+    playbook_path = models.CharField(max_length=1000, verbose_name=_('Playbook Path'), blank=True, null=True)
+
+    @property
+    def inventory(self):
+        if self.become:
+            become_info = {
+                'become': {
+                    self.become
+                }
+            }
+        else:
+            become_info = None
+        inventory = PlaybookInventory(
+            task=self.playbook_task, run_as_admin=self.run_as_admin,
+            run_as=self.run_as, become_info=become_info
+        )
+        return inventory
+
+    @property
+    def playbook_task(self):
+        return PlayBookTask.objects.get(id=self.task.id)
+
+    def _run_and_record(self):
+        return self._run_only()
+
+    def _run_only(self):
+        options = get_default_options()
+        options = options._replace(playbook_path=self.playbook_path)
+        options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
+        runner = PlayBookRunner(self.inventory, options)
+        try:
+            result = runner.run()
+            print(result)
+            return result
+        except AnsibleError as e:
+            logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
+            pass
+
+    def __str__(self):
+        return "{} of {}".format(self.task.name, self.short_id)
+
+    def __eq__(self, other):
+        instance = other
+        if not isinstance(self, other.__class__):
+            return False
+        if not isinstance(other, self.__class__):
+            instance = Playbook.objects.get(id=other.id)
         fields_check = []
         for field in self.__class__._meta.fields:
-            if field.name not in ['id', 'date_created']:
+            if field.name not in ['id', 'date_created', 'adhoc_ptr']:
                 fields_check.append(field)
-        print(fields_check)
         for field in fields_check:
-            if getattr(self, field.name) != getattr(other, field.name):
+            if getattr(self, field.name) != getattr(instance, field.name):
                 return False
         return True
 

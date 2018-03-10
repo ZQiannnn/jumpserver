@@ -506,7 +506,7 @@
                 toastr.error(data);
             }
             let success = function (data) {
-                location.href = "{% url 'devops:record-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', data);
+                {#location.href = "{% url 'devops:record-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', data);#}
             }
             APIUpdateAttr({
                 url: the_url,

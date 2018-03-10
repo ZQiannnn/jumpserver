@@ -15,7 +15,7 @@ from .callback import AdHocResultCallback, PlaybookResultCallBack, \
 from common.utils import get_logger
 from .exceptions import AnsibleError
 
-__all__ = ["AdHocRunner", "PlayBookRunner"]
+__all__ = ["AdHocRunner", "PlayBookRunner", "get_default_options"]
 C.HOST_KEY_CHECKING = False
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ Options = namedtuple('Options', [
     'ssh_common_args', 'ssh_extra_args', 'sftp_extra_args',
     'scp_extra_args', 'become', 'become_method', 'become_user',
     'verbosity', 'check', 'extra_vars', 'playbook_path', 'passwords',
-    'diff', 'gathering', 'remote_tmp',
+    'diff', 'gathering', 'remote_tmp', 'tags',
 ])
 
 
@@ -55,7 +55,8 @@ def get_default_options():
         passwords=None,
         diff=False,
         gathering='implicit',
-        remote_tmp='/tmp/.ansible'
+        remote_tmp='/tmp/.ansible',
+        tags=[]
     )
     return options
 
@@ -80,19 +81,10 @@ class PlayBookRunner:
         if options:
             self.options = options
         C.RETRY_FILES_ENABLED = False
-        if inventory is None:
-            from ansible.inventory import Inventory
-            self.inventory = Inventory(loader=self.loader, variable_manager=self.variable_manager,
-                                       host_list="/etc/ansible/hosts")
-        else:
-            self.inventory = BaseInventory(inventory)
+        self.inventory = inventory
         self.loader = self.loader_class()
         self.results_callback = self.results_callback_class()
-        if options.playbook_path is None or not os.path.exists(options.playbook_path):
-            raise AnsibleError(
-                "Not Found the playbook file: %s." % options.playbook_path)
         self.playbook_path = options.playbook_path
-
         self.variable_manager = self.variable_manager_class(
             loader=self.loader, inventory=self.inventory
         )
@@ -117,26 +109,11 @@ class PlayBookRunner:
             options=self.options,
             passwords=self.passwords
         )
-
         if executor._tqm:
             executor._tqm._stdout_callback = self.results_callback
         executor.run()
         executor._tqm.cleanup()
         return self.results_callback.output
-
-    def clean_result(self):
-        result = {'success': [], 'failed': []}
-
-        for task in self.callbackmodule.output['plays'][0]['tasks']:
-            for host, detail in task.get('hosts', {}).items():
-                if detail.get('unreachable', False) or detail.get('failed', False):
-                    msg = "[%s]： %s" % (task['task'].get('name', ''), detail.get('msg', ''))
-                    result['failed'].append((host, msg))
-
-        for host, stat in self.callbackmodule.output['stats'].items():
-            if stat['unreachable'] == 0 and stat['failures'] == 0:
-                result['success'].append(host)
-        return result
 
 
 class AdHocRunner:
@@ -167,8 +144,8 @@ class AdHocRunner:
     def check_pattern(self, pattern):
         if not pattern:
             raise AnsibleError("Pattern `{}` is not valid!".format(pattern))
-        if not self.inventory.list_hosts("all"):
-            raise AnsibleError("Inventory is empty.")
+        # if not self.inventory.list_hosts("all"):
+        #     raise AnsibleError("Inventory is empty.")
         if not self.inventory.list_hosts(pattern):
             raise AnsibleError(
                 "pattern: %s  dose not match any hosts." % pattern
@@ -229,20 +206,6 @@ class AdHocRunner:
         finally:
             tqm.cleanup()
             self.loader.cleanup_all_tmp_files()
-
-    def clean_result(self):
-        result = {'success': [], 'failed': []}
-
-        for task in self.callbackmodule.output['plays'][0]['tasks']:
-            for host, detail in task.get('hosts', {}).items():
-                if detail.get('unreachable', False) or detail.get('failed', False):
-                    msg = "[%s]： %s" % (task['task'].get('name', ''), detail.get('msg', ''))
-                    result['failed'].append((host, msg))
-
-        for host, stat in self.callbackmodule.output['stats'].items():
-            if stat['unreachable'] == 0 and stat['failures'] == 0:
-                result['success'].append(host)
-        return result
 
 
 class CommandRunner(AdHocRunner):

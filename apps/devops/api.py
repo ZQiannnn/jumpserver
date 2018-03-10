@@ -1,6 +1,8 @@
 # ~*~ coding: utf-8 ~*~
 
 import uuid
+from collections import OrderedDict
+
 from rest_framework import status
 from rest_framework import viewsets, generics, mixins, views
 from rest_framework.response import Response
@@ -16,6 +18,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib.auth.hashers import make_password, check_password
 from .tasks import ansible_install_role
+from .utils import create_update_task_playbook
 
 
 class TaskListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -49,7 +52,7 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         return response
 
     def playbook(self, task_id):
-        """ 组织任务的playbook """
+        """ 组织任务的playbook 文件"""
         task = PlayBookTask.objects.get(id=task_id)
         playbook = {'hosts': 'all'}
         #: system_user
@@ -57,7 +60,8 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         #     playbook.update({'become': 'True', 'become_user': task.system_user.username})
 
         #: role
-        role = {'roles': [{'role': task.ansible_role.name}]}
+        role = OrderedDict()
+        role.update({'roles': [{'role': task.ansible_role.name}]})
         playbook.update(role)
 
         playbook_yml = [playbook]
@@ -65,6 +69,9 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             os.makedirs('../playbooks')
         with open("../playbooks/task_%s.yml" % task.id, "w") as f:
             yaml.dump(playbook_yml, f)
+
+        """ 创建task的playbook """
+        create_update_task_playbook(task)
 
 
 class AnsibleRoleViewSet(viewsets.ModelViewSet):
@@ -161,6 +168,11 @@ class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
     serializer_class = TaskUpdateSystemUserSerializer
     permission_classes = (IsSuperUser,)
 
+    def update(self, request, *args, **kwargs):
+        response = super(TaskUpdateSystemUserApi, self).update(request, *args, **kwargs)
+        create_update_task_playbook(self.get_object())
+        return response
+
 
 class TaskExecuteApi(generics.RetrieveAPIView):
     """
@@ -171,50 +183,24 @@ class TaskExecuteApi(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         task = self.get_object()
+        task.run()
         #: 计算assets
         #: 超级用户直接取task所有assets
-        assets = []
-        assets.extend(list(task.assets.all()))
-        for group in task.groups.all():
-            assets.extend(group.assets.all())
-
-        print(request.user)
-        from jumpserver import middleware
-        print(middleware.get_current_user())
-
-        if not request.user.is_superuser:
-            #: 普通用户取授权过的assets
-            granted_assets = utils.get_user_assets(user=request.user)
-            #: 取交集
-            assets = set(assets).intersection(set(granted_assets))
-
-        # if len(assets) == 0:
-        #     return Response("任务执行的资产为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        #: 系统用户不能为空
-        # if task.system_user is None:
-        #     return Response("任务执行的系统用户为空", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            #: 没有assets和system_user不允许执行
-
-        #: 新建一个Record
-        uuid_str = str(uuid.uuid4())
-
-        playbook_path = '../playbooks/task_%d.yml' % task.id
-        task_name = "%s #%d" % (task.name, task.counts + 1)
-        with open(playbook_path) as f:
-            playbook_json = yaml.load(f)
-        # task_record = Record(uuid=uuid_str,
-        #                      name=task_name,
-        #                      assets=','.join(str(asset._to_secret_json()['id']) for asset in assets),
-        #                      module_args=[('playbook', playbook_json)])
-        # task_record.task = task
-        # task_record.save()
-
-        # ansible_task_execute.delay(task.id, [asset._to_secret_json() for asset in assets],
-        #                            task.system_user.username, task_name, task.tags, uuid_str)
-        # task.counts += 1
-        # task.save()
-
-        return Response(uuid_str, status=status.HTTP_200_OK)
+        # assets = []
+        # assets.extend(list(task.assets.all()))
+        # for group in task.groups.all():
+        #     assets.extend(group.assets.all())
+        #
+        # print(request.user)
+        # from jumpserver import middleware
+        # print(middleware.get_current_user())
+        #
+        # if not request.user.is_superuser:
+        #     #: 普通用户取授权过的assets
+        #     granted_assets = utils.get_user_assets(user=request.user)
+        #     #: 取交集
+        #     assets = set(assets).intersection(set(granted_assets))
+        return Response(task.id, status=status.HTTP_200_OK)
 
 
 class RecordViewSet(viewsets.ModelViewSet):

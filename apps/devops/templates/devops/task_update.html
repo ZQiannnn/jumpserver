@@ -49,7 +49,7 @@
                 location.href = "{% url 'devops:task-list' %}";
             }
             let error = function (data) {
-                APIFormError(data.responseJSON)
+                APIFormError(data)
             }
             APIUpdateAttr({
                 url: the_url,

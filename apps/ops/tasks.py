@@ -3,6 +3,7 @@ from celery import shared_task, subtask
 
 from common.utils import get_logger, get_object_or_none
 from .models import Task
+from devops.models import PlayBookTask
 
 logger = get_logger(__file__)
 
@@ -19,14 +20,21 @@ def run_ansible_task(task_id, callback=None, **kwargs):
     :return:
     """
 
-    task = get_object_or_none(Task, id=task_id)
+    task = get_object_or_none(PlayBookTask, id=task_id)
     if task:
         result = task.run()
         if callback is not None:
             subtask(callback).delay(result, task_name=task.name)
         return result
     else:
-        logger.error("No task found")
+        task = get_object_or_none(Task, id=task_id)
+        if task:
+            result = task.run()
+            if callback is not None:
+                subtask(callback).delay(result, task_name=task.name)
+            return result
+        else:
+            logger.error("No task found")
 
 
 @shared_task

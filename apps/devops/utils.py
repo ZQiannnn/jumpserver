@@ -2,19 +2,30 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from assets import const
+from .models import Playbook
+import os
 import json
-import yaml
-import time
-import uuid
 
-from django.utils import timezone
 
-from assets.models import Asset
-from common.utils import get_logger
-from .ansible.runner import AdHocRunner, PlayBookRunner
-
-logger = get_logger(__file__)
-
+def create_update_task_playbook(task):
+    # 共用task的adhoc字段用来存playbook
+    playbook = task.latest_adhoc
+    new_playbook = Playbook(task=task, pattern="all",
+                            run_as_admin=task.system_user is None,
+                            run_as=task.system_user.name if task.system_user else '')
+    new_playbook.options = const.TASK_OPTIONS
+    new_playbook.tasks = [{"name": task.name, "action": {"module": "Ansible Role : " + task.ansible_role.name
+                                                                   + ",Ansible Tags : " + json.dumps(task.tags)}}]
+    new_playbook.hosts = []
+    new_playbook.playbook_path = os.path.abspath("../playbooks/task_%s.yml" % task.id)
+    created = False
+    if not playbook or playbook != new_playbook:
+        print("Task create new playbook: {}".format(task.name))
+        new_playbook.save()
+        task.latest_adhoc = new_playbook
+        created = True
+    return task, created
 
 # def run_AdHoc(task_tuple, assets=None,
 #               task_name='Ansible AdHoc runner',
