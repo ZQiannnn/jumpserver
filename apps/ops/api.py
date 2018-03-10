@@ -24,7 +24,7 @@ class TaskRun(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
-        run_ansible_task(str(task.id))
+        run_ansible_task.delay(str(task.id))
         return Response({"msg": "start"})
 
 
