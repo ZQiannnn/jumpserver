@@ -43,21 +43,21 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     def update(self, request, *args, **kwargs):
         response = super(TaskOperationViewSet, self).update(request, *args, **kwargs)
         task = self.get_object()
-        self.playbook(task.id)
+        self.playbook(task.id, request)
         return response
 
     def create(self, request, *args, **kwargs):
         response = super(TaskOperationViewSet, self).create(request, *args, **kwargs)
-        self.playbook(response.data['id'])
+        task = PlayBookTask.objects.get(id=response.data['id'])
+        task.created_by = request.user.name
+        task.save()
+        self.playbook(response.data['id'], request)
         return response
 
-    def playbook(self, task_id):
+    def playbook(self, task_id, request):
         """ 组织任务的playbook 文件"""
         task = PlayBookTask.objects.get(id=task_id)
         playbook = {'hosts': 'all'}
-        #: system_user
-        # if task.run_as is not None:
-        #     playbook.update({'become': 'True', 'become_user': task.system_user.username})
 
         #: role
         role = OrderedDict()
@@ -71,7 +71,7 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             yaml.dump(playbook_yml, f)
 
         """ 创建task的playbook """
-        create_update_task_playbook(task)
+        create_update_task_playbook(task, request.user)
 
 
 class AnsibleRoleViewSet(viewsets.ModelViewSet):
@@ -154,12 +154,22 @@ class TaskUpdateGroupApi(generics.RetrieveUpdateAPIView):
     serializer_class = TaskUpdateGroupSerializer
     permission_classes = (IsSuperUser,)
 
+    def update(self, request, *args, **kwargs):
+        response = super(TaskUpdateGroupApi, self).update(request, *args, **kwargs)
+        create_update_task_playbook(self.get_object())
+        return response
+
 
 class TaskUpdateAssetApi(generics.RetrieveUpdateAPIView):
     """Task update it's asset api"""
     queryset = PlayBookTask.objects.all()
     serializer_class = TaskUpdateAssetSerializer
     permission_classes = (IsSuperUser,)
+
+    def update(self, request, *args, **kwargs):
+        response = super(TaskUpdateAssetApi, self).update(request, *args, **kwargs)
+        create_update_task_playbook(self.get_object())
+        return response
 
 
 class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
@@ -172,35 +182,6 @@ class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
         response = super(TaskUpdateSystemUserApi, self).update(request, *args, **kwargs)
         create_update_task_playbook(self.get_object())
         return response
-
-
-class TaskExecuteApi(generics.RetrieveAPIView):
-    """
-       Task Execute API
-    """
-    permission_classes = (IsValidUser,)
-    queryset = PlayBookTask.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        task = self.get_object()
-        task.run()
-        #: 计算assets
-        #: 超级用户直接取task所有assets
-        # assets = []
-        # assets.extend(list(task.assets.all()))
-        # for group in task.groups.all():
-        #     assets.extend(group.assets.all())
-        #
-        # print(request.user)
-        # from jumpserver import middleware
-        # print(middleware.get_current_user())
-        #
-        # if not request.user.is_superuser:
-        #     #: 普通用户取授权过的assets
-        #     granted_assets = utils.get_user_assets(user=request.user)
-        #     #: 取交集
-        #     assets = set(assets).intersection(set(granted_assets))
-        return Response(task.id, status=status.HTTP_200_OK)
 
 
 class RecordViewSet(viewsets.ModelViewSet):

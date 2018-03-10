@@ -148,13 +148,13 @@ class PlaybookInventory(BaseInventory):
     write you own manager, construct you inventory
     """
 
-    def __init__(self, task, run_as_admin=False, run_as=None, become_info=None):
+    def __init__(self, task, run_as_admin=False, run_as=None, become_info=None, current_user=None):
         self.task = task
         self.using_admin = run_as_admin
         self.run_as = run_as
         self.become_info = become_info
 
-        assets = self.get_jms_assets()
+        assets = self.get_jms_assets(current_user)
         if run_as_admin:
             host_list = [asset._to_secret_json() for asset in assets]
         else:
@@ -170,18 +170,16 @@ class PlaybookInventory(BaseInventory):
         self.set_all_variables()
         super().__init__(host_list=host_list)
 
-    def get_jms_assets(self):
+    def get_jms_assets(self, current_user):
         assets = []
         assets.extend(list(self.task.assets.all()))
         for group in self.task.groups.all():
             assets.extend(group.get_all_active_assets())
-        from jumpserver import middleware
-        user = middleware.get_current_user()
 
-        if not user.is_superuser:
-            #: 普通用户取授权过的assets
-            granted_assets = NodePermissionUtil.get_user_assets(user=user)
-            #: 取交集
+        if current_user is not None and not current_user.is_superuser:
+            # : 普通用户取授权过的assets
+            granted_assets = NodePermissionUtil.get_user_assets(user=current_user)
+            # : 取交集
             assets = set(assets).intersection(set(granted_assets))
         return assets
 

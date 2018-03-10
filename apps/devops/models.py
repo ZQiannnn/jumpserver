@@ -1,6 +1,11 @@
 # ~*~ coding: utf-8 ~*~
 
+import json
+import time
+
+from users.models import User
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 from separatedvaluesfield.models import TextSeparatedValuesField
@@ -8,17 +13,14 @@ from separatedvaluesfield.models import TextSeparatedValuesField
 from assets.models import *
 from assets.models.user import AssetUser
 from common.utils import get_signer, get_logger
-from .ansible.inventory import PlaybookInventory
 from ops.models import Task, AdHoc, AdHocRunHistory
-from .ansible import AdHocRunner, AnsibleError, PlayBookRunner, get_default_options
-import time
-from django.utils import timezone
-import json
+from .ansible import AnsibleError, PlayBookRunner, get_default_options
+from .ansible.inventory import PlaybookInventory
 
 logger = get_logger(__file__)
 signer = get_signer()
 
-__all__ = ["AnsibleRole", "PlayBookTask", "Playbook", "Variable", "PlaybookRunHistory"]
+__all__ = ["AnsibleRole", "PlayBookTask", "Playbook", "Variable"]
 
 
 class AnsibleRole(models.Model):
@@ -45,9 +47,9 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
-    def run(self, record=True):
+    def run(self, current_user=None, record=True):
         if self.latest_adhoc:
-            return Playbook.objects.get(id=self.latest_adhoc.id).run(record=record)
+            return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, record=record)
         else:
             return {'error': 'No adhoc'}
 
@@ -72,13 +74,20 @@ class Playbook(AdHoc):
             become_info = None
         inventory = PlaybookInventory(
             task=self.playbook_task, run_as_admin=self.run_as_admin,
-            run_as=self.run_as, become_info=become_info
+            run_as=self.run_as, become_info=become_info, current_user=self.current_user
         )
         return inventory
 
     @property
     def playbook_task(self):
         return PlayBookTask.objects.get(id=self.task.id)
+
+    def run(self, current_user=None, record=True):
+        self.current_user = User.objects.get(id=current_user)
+        if record:
+            return self._run_and_record()
+        else:
+            return self._run_only()
 
     def _run_and_record(self):
         history = AdHocRunHistory(adhoc=self, task=self.task)
@@ -120,12 +129,9 @@ class Playbook(AdHoc):
                         result['dark'][host] = {}
                     # 找到每个task对应的失败host与消息
                     host_data = result['dark'].get(host)
-                    print(1, host_data, result['dark'])
                     host_data[task['task'].get('name', '')] = {
                         'msg': '%s => %s' % (detail.get('msg', ''), detail.get('stderr_lines', ''))}
-                    print(2, host_data, result['dark'])
 
-        print(result['dark'])
         for host, stat in output['stats'].items():
             if stat['unreachable'] == 0 and stat['failures'] == 0:
                 result['contacted'].append(host)
@@ -151,6 +157,7 @@ class Playbook(AdHoc):
         if not isinstance(self, other.__class__):
             return False
         if not isinstance(other, self.__class__):
+            print(other.id)
             instance = Playbook.objects.get(id=other.id)
         fields_check = []
         for field in self.__class__._meta.fields:
@@ -160,13 +167,6 @@ class Playbook(AdHoc):
             if getattr(self, field.name) != getattr(instance, field.name):
                 return False
         return True
-
-
-class PlaybookRunHistory(AdHocRunHistory):
-    """Playbook Task 执行记录 """
-    playbook_task = models.ForeignKey(PlayBookTask, related_name='playbook_history', on_delete=models.SET_NULL,
-                                      null=True)
-    playbook = models.ForeignKey(Playbook, related_name='playbook_history', on_delete=models.SET_NULL, null=True)
 
 
 class Variable(models.Model):

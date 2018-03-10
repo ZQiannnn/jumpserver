@@ -101,14 +101,17 @@
         });
 
          function executeTask(id) {
-            let the_url = "{% url 'api-devops:task-execute' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
             let success_message = "正在执行中。。。"
             let error = function (data) {
                 toastr.error(data);
             }
-            let success = function (data) {
-                {#location.href="{% url 'devops:record-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', data);#}
-            }
+            var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id);
+            var success = function () {
+                setTimeout(function () {
+                    console.log("ok")
+                }, 1000);
+                window.location = "{% url 'ops:task-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
+            };
             APIUpdateAttr({
                 url: the_url,
                 method: 'GET',

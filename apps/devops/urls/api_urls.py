@@ -22,7 +22,6 @@ urlpatterns = [
     url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/assets/$', api.TaskUpdateAssetApi.as_view(), name='task-update-asset'),
     url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/system-user/$', api.TaskUpdateSystemUserApi.as_view(),
         name='task-update-system-user'),
-    url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/execute/$', api.TaskExecuteApi.as_view(), name='task-execute'),
     url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/webhook/$', api.TaskWebhookApi.as_view(), name='task-webhook'),
     url(r'^v1/variables/(?P<pk>\d+)/vars/$', api.VariableVarsApi.as_view(), name='variable-vars'),
     url(r'^v1/variables/(?P<pk>\d+)/vars/add/$', api.VariableAddVarsApi.as_view(), name='variable-add-vars'),
