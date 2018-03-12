@@ -1,5 +1,5 @@
 # ~*~ coding: utf-8 ~*~
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.views.generic import ListView, DetailView
@@ -43,7 +43,7 @@ class TaskListView(AdminUserRequiredMixin, DatetimeSearchMixin, ListView):
         return super().get_context_data(**kwargs)
 
 
-class TaskDetailView(AdminUserRequiredMixin, DetailView):
+class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'ops/task_detail.html'
 
@@ -56,7 +56,7 @@ class TaskDetailView(AdminUserRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class TaskAdhocView(AdminUserRequiredMixin, DetailView):
+class TaskAdhocView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'ops/task_adhoc.html'
 
@@ -69,7 +69,7 @@ class TaskAdhocView(AdminUserRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class TaskHistoryView(AdminUserRequiredMixin, DetailView):
+class TaskHistoryView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'ops/task_history.html'
 
@@ -82,7 +82,7 @@ class TaskHistoryView(AdminUserRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class AdHocDetailView(AdminUserRequiredMixin, DetailView):
+class AdHocDetailView(LoginRequiredMixin, DetailView):
     model = AdHoc
     template_name = 'ops/adhoc_detail.html'
 
@@ -95,7 +95,7 @@ class AdHocDetailView(AdminUserRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class AdHocHistoryView(AdminUserRequiredMixin, DetailView):
+class AdHocHistoryView(LoginRequiredMixin, DetailView):
     model = AdHoc
     template_name = 'ops/adhoc_history.html'
 
@@ -108,7 +108,7 @@ class AdHocHistoryView(AdminUserRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class AdHocHistoryDetailView(AdminUserRequiredMixin, DetailView):
+class AdHocHistoryDetailView(LoginRequiredMixin, DetailView):
     model = AdHocRunHistory
     template_name = 'ops/adhoc_history_detail.html'
 

@@ -6,6 +6,7 @@ from rest_framework.views import Response
 
 from common.utils import get_object_or_none
 from devops.models import Playbook
+from users.permissions import IsValidUser
 from .hands import IsSuperUser
 from .models import Task, AdHoc, AdHocRunHistory
 from .serializers import TaskSerializer, AdHocSerializer, AdHocRunHistorySerializer
@@ -15,13 +16,13 @@ from .tasks import run_ansible_task
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsValidUser,)
 
 
 class TaskRun(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskViewSet
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsValidUser,)
 
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
@@ -38,7 +39,7 @@ class TaskRun(generics.RetrieveAPIView):
 class AdHocViewSet(viewsets.ModelViewSet):
     queryset = AdHoc.objects.all()
     serializer_class = AdHocSerializer
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsValidUser,)
 
     def get_queryset(self):
         task_id = self.request.query_params.get('task')
@@ -51,7 +52,7 @@ class AdHocViewSet(viewsets.ModelViewSet):
 class AdHocRunHistorySet(viewsets.ModelViewSet):
     queryset = AdHocRunHistory.objects.all()
     serializer_class = AdHocRunHistorySerializer
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsValidUser,)
 
     def get_queryset(self):
         task_id = self.request.query_params.get('task')
@@ -59,9 +60,9 @@ class AdHocRunHistorySet(viewsets.ModelViewSet):
         if task_id:
             task = get_object_or_404(Task, id=task_id)
             adhocs = task.adhoc.all()
-            self.queryset = self.queryset.filter(adhoc__in=adhocs)
+            self.queryset = self.queryset.filter(adhoc__in=adhocs).order_by('-date_start')
 
         if adhoc_id:
             adhoc = get_object_or_404(AdHoc, id=adhoc_id)
-            self.queryset = self.queryset.filter(adhoc=adhoc)
+            self.queryset = self.queryset.filter(adhoc=adhoc).order_by('-date_start')
         return self.queryset
