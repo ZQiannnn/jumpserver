@@ -1,0 +1,46 @@
+version: '2'
+services:
+  jumpserver:
+    image: zqiannnn/jumpserver-ansible:0.5.0
+#    image: registry.jumpserver.org/public/jumpserver:latest
+    container_name: jumpserver
+    restart: always
+    environment:
+      - DB_ENGINE=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=jumpserver
+      - DB_NAME=jumpserver
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=jumpserver
+    volumes:
+      - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/coco:/opt/coco/keys
+      - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/jumpserver:/opt/jumpserver/data
+    ports:
+      - 2222:2222
+      - 80:80
+    links:
+      - mysql
+      - redis
+  redis:
+    container_name: jumpserver_redis
+    image: bitnami/redis:4.0
+    restart: always
+    volumes:
+      - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/redis:/bitnami
+    environment:
+      - REDIS_PASSWORD=jumpserver
+  mysql:
+    container_name: jumpserver_mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=jumpserver
+      - MYSQL_DATABASE=jumpserver
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/mysql/data:/var/lib/mysql
+      - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/mysql/conf:/etc/mysql/conf.d/my.cnf
+
