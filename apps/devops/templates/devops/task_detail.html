@@ -307,8 +307,8 @@
                 order: [],
                 columnDefs: [
                     {
-                        targets: 0, createdCell: function (td, cellData, rowData) {
-                            $(td).html("");
+                        targets: 1, createdCell: function (td, cellData, rowData) {
+                            $(td).html(('<a href="{% url 'ops:adhoc-history-detail' pk=DEFAULT_PK %}">'+cellData+'</a>').replace("{{ DEFAULT_PK }}",rowData.id));
                         }
                     },
 
