@@ -13,6 +13,7 @@ router.register(r'v1/tasks', api.TaskListViewSet, 'task')
 router.register(r'v1/tasks-opt', api.TaskOperationViewSet, 'task-opt')
 router.register(r'v1/roles', api.AnsibleRoleViewSet, 'role')
 router.register(r'v1/variables', api.VariableViewSet, 'variable')
+# router.register(r'v1/historys', api.TaskHistoryView, 'history')
 
 urlpatterns = [
     url(r'^v1/roles/install/$', api.InstallRoleView.as_view(), name='role-install'),
@@ -23,6 +24,7 @@ urlpatterns = [
     url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/system-user/$', api.TaskUpdateSystemUserApi.as_view(),
         name='task-update-system-user'),
     url(r'^v1/tasks/(?P<pk>[0-9a-zA-Z\-]{36})/webhook/$', api.TaskWebhookApi.as_view(), name='task-webhook'),
+    url(r'^v1/tasks/history/$', api.TaskHistoryApi.as_view(), name='task-history'),
     url(r'^v1/variables/(?P<pk>\d+)/vars/$', api.VariableVarsApi.as_view(), name='variable-vars'),
     url(r'^v1/variables/(?P<pk>\d+)/vars/add/$', api.VariableAddVarsApi.as_view(), name='variable-add-vars'),
     url(r'^v1/variables/(?P<pk>\d+)/vars/delete/$', api.VariableDeleteVarsApi.as_view(), name='variable-delete-vars'),

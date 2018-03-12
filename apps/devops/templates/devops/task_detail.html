@@ -272,7 +272,7 @@
                                                 <td colspan="2">
                                                     <button type="button"
                                                             class="btn btn-warning btn-sm btn-system-user">{% trans 'Confirm' %}</button>
-                                                <button type="button"
+                                                    <button type="button"
                                                             class="btn btn-danger btn-sm btn-del-system-user">{% trans 'Clear' %}</button>
                                                 </td>
 
@@ -308,46 +308,41 @@
                 columnDefs: [
                     {
                         targets: 0, createdCell: function (td, cellData, rowData) {
-                        $(td).html("");
-                    }
+                            $(td).html("");
+                        }
                     },
-                    {
-                        targets: 1, createdCell: function (td, cellData, rowData) {
-                        {#var detail_btn = '<a href="{% url "devops:record-detail" pk=99991937 %}" >' + cellData + '</a>';#}
-                        $(td).html(rowData.replace('99991937', rowData.uuid));
-                    }
-                    },
+
                     {
                         targets: 2, createdCell: function (td, cellData, rowData) {
-                        if (cellData) {
-                            $(td).html(' <i class="fa fa-check text-navy"></i>')
-                        } else {
-                            $(td).html('<i class="fa fa-times text-danger"></i>')
+                            if (cellData) {
+                                $(td).html(' <i class="fa fa-check text-navy"></i>')
+                            } else {
+                                $(td).html('<i class="fa fa-times text-danger"></i>')
+                            }
                         }
-                    }
                     },
                     {
                         targets: 3, createdCell: function (td, cellData, rowData) {
-                        if (cellData) {
-                            $(td).html(' <i class="fa fa-check text-navy"></i>')
-                        } else {
-                            $(td).html('<i class="fa fa-times text-danger"></i>')
+                            if (cellData) {
+                                $(td).html(' <i class="fa fa-check text-navy"></i>')
+                            } else {
+                                $(td).html('<i class="fa fa-times text-danger"></i>')
+                            }
                         }
-                    }
                     },
                     {
                         targets: 4, createdCell: function (td, cellData, rowData) {
-                        $(td).html(new Date(cellData).format("yyyy-MM-dd hh:mm:ss"))
-                    }
+                            $(td).html(cellData.substring(0,cellData.length-5))
+                        }
                     },
                     {
                         targets: 5, createdCell: function (td, cellData, rowData) {
-                        $(td).html(cellData + "s");
-                    }
+                            $(td).html(cellData.toFixed(2) + "s");
+                        }
                     }
                 ],
-                {#ajax_url: '{% url "api-devops:record-list" %}?task={{ task.id }}',#}
-                columns: [{data: "uuid"}, {data: "name"}, {data: "is_success"}, {data: "is_finished"}, {data: "date_start"}, {data: "timedelta"}],
+                ajax_url: '{% url "api-devops:task-history" %}?task={{ task.id }}',
+                columns: [{data: "id"}, {data: "short_id"}, {data: "is_success"}, {data: "is_finished"}, {data: "date_start"}, {data: "timedelta"}],
                 dom: '<"#uc.pull-left">t<"row m-t"<"col-md-8"<"#op.col-md-6"><"col-md-6 text-center"i>><"col-md-4"p>>',
             };
             jumpserver.initDataTable(options);
@@ -536,6 +531,15 @@
                 if (new RegExp("(" + k + ")").test(fmt))
                     fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
             return fmt;
+        }
+
+        /**
+         * 字符串转时间（yyyy-MM-dd HH:mm:ss）
+         * result （分钟）
+         */
+        function stringToDate(fDate) {
+            var fullDate = fDate.split("-");
+            return new Date(fullDate[0], fullDate[1] - 1, fullDate[2], 0, 0, 0);
         }
     </script>
 {% endblock %}

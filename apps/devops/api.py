@@ -1,24 +1,27 @@
 # ~*~ coding: utf-8 ~*~
 
+import _thread
 import os
 from collections import OrderedDict
 
-import _thread
 import yaml
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets, generics, mixins
 from rest_framework.response import Response
 
+from common.utils import get_object_or_none
+from ops.models import AdHocRunHistory
+from ops.serializers import TaskSerializer, AdHocRunHistorySerializer
+from ops.tasks import run_ansible_task
 from .hands import IsSuperUser, IsValidUser
 from .serializers import *
 from .tasks import ansible_install_role
 from .utils import create_update_task_playbook
-from ops.tasks import run_ansible_task
-from common.utils import get_object_or_none
 
 
 class TaskListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -169,7 +172,7 @@ class TaskStatusApi(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
         playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
-        return Response({'is_running':playbook.is_running}, status=status.HTTP_200_OK)
+        return Response({'is_running': playbook.is_running}, status=status.HTTP_200_OK)
 
 
 class TaskUpdateAssetApi(generics.RetrieveUpdateAPIView):
@@ -304,3 +307,18 @@ class TaskWebhookApi(generics.GenericAPIView):
         _thread.start_new_thread(run_ansible_task, (str(task.id), request.user.id,))
 
         return Response(status=status.HTTP_200_OK)
+
+
+class TaskHistoryApi(generics.ListAPIView):
+    queryset = AdHocRunHistory.objects.all()
+    serializer_class = AdHocRunHistorySerializer
+    permission_classes = (IsValidUser,)
+
+    def get_queryset(self):
+        task_id = self.request.query_params.get('task', '')
+
+        if task_id:
+            task = get_object_or_404(PlayBookTask, id=task_id)
+            adhocs = task.adhoc.all()
+            self.queryset = self.queryset.filter(adhoc__in=adhocs).order_by('-date_start')[:10]
+        return self.queryset
