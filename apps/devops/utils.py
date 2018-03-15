@@ -41,7 +41,7 @@ def create_update_task_playbook(task, user):
     # 名称和描述
     new_playbook.tasks = tasks
     new_playbook.hosts = []
-    new_playbook.playbook_path = os.path.abspath("../playbooks/task_%s.yml" % task.id)
+    new_playbook.playbook_path = os.path.abspath("../data/playbooks/task_%s.yml" % task.id)
     created = False
     if not playbook or playbook != new_playbook:
         print("Task create new playbook: {}".format(task.name))

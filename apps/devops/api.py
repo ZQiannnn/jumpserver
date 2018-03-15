@@ -68,9 +68,9 @@ class TaskOperationViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         playbook.update(role)
 
         playbook_yml = [playbook]
-        if not os.path.exists('../playbooks'):
-            os.makedirs('../playbooks')
-        with open("../playbooks/task_%s.yml" % task.id, "w") as f:
+        if not os.path.exists('../data/playbooks'):
+            os.makedirs('../data/playbooks')
+        with open("../data/playbooks/task_%s.yml" % task.id, "w") as f:
             yaml.dump(playbook_yml, f)
 
         """ 创建task的playbook """
@@ -97,7 +97,7 @@ class InstallRoleView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         #: 新建role安装文件夹
-        roles_path = os.path.join(settings.PROJECT_DIR, 'playbooks', 'roles')
+        roles_path = os.path.join(settings.PROJECT_DIR, 'data', 'playbooks', 'roles')
         #: 获取role name
 
         #: 执行role 安装操作
@@ -138,7 +138,7 @@ class InstallZipRoleView(generics.CreateAPIView):
         import zipfile
         f = zipfile.ZipFile(path, 'r')
         for file in f.namelist():
-            f.extract(file, os.path.join(settings.PROJECT_DIR, 'playbooks', 'roles'))
+            f.extract(file, os.path.join(settings.PROJECT_DIR, 'data', 'playbooks', 'roles'))
 
         #: 删除
         default_storage.delete(path)

@@ -34,4 +34,4 @@ docs/_build/
 redis/
 redis.yaml
 README 2.md
-playbooks/
+data/playbooks/
