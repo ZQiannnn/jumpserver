@@ -3,13 +3,18 @@
 from __future__ import unicode_literals
 
 import logging
+from collections import OrderedDict
 
+import os
+
+import yaml
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView, DetailView, RedirectView
 
 from assets.models import *
+from .utils import create_update_task_playbook
 from .forms import *
 from .hands import *
 from .models import *
@@ -56,6 +61,39 @@ class TaskUpdateView(AdminUserRequiredMixin, TemplateView):
         }
         kwargs.update(context)
         return super(TaskUpdateView, self).get_context_data(**kwargs)
+
+
+class TaskCloneView(AdminUserRequiredMixin, RedirectView):
+    url = reverse_lazy('devops:task-list')
+
+    def get(self, request, *args, **kwargs):
+        #: 克隆一个变量组
+        old_task = PlayBookTask.objects.get(id=kwargs['pk'])
+        new_task = PlayBookTask(name=old_task.name + "-copy", desc=old_task.desc + "-copy",
+                                ansible_role_id=old_task.ansible_role_id, tags=old_task.tags,
+                                system_user_id=old_task.system_user_id)
+        new_task.save()
+        self.playbook(new_task.id, request)
+        return super(TaskCloneView, self).get(request, *args, **kwargs)
+
+    def playbook(self, task_id, request):
+        """ 组织任务的playbook 文件"""
+        task = PlayBookTask.objects.get(id=task_id)
+        playbook = {'hosts': 'all'}
+
+        #: role
+        role = OrderedDict()
+        role.update({'roles': [{'role': task.ansible_role.name}]})
+        playbook.update(role)
+
+        playbook_yml = [playbook]
+        if not os.path.exists('../data/playbooks'):
+            os.makedirs('../data/playbooks')
+        with open("../data/playbooks/task_%s.yml" % task.id, "w") as f:
+            yaml.dump(playbook_yml, f)
+
+        """ 创建task的playbook """
+        create_update_task_playbook(task, request.user)
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^task/$', views.TaskListView.as_view(), name='task-list'),
     url(r'^task/create$', views.TaskCreateView.as_view(), name='task-create'),
     url(r'^task/(?P<pk>[0-9a-zA-Z\-]{36})/update/$', views.TaskUpdateView.as_view(), name='task-update'),
+    url(r'^task/(?P<pk>[0-9a-zA-Z\-]{36})/clone/$', views.TaskCloneView.as_view(), name='task-clone'),
     url(r'^task/(?P<pk>[0-9a-zA-Z\-]{36})/detail/$', views.TaskDetailView.as_view(), name='task-detail'),
     url(r'^variable/$', views.VariableListView.as_view(), name='variable-list'),
     url(r'^variable/create$', views.VariableCreateView.as_view(), name='variable-create'),
