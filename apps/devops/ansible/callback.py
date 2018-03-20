@@ -168,6 +168,10 @@ class PlaybookResultCallBack(CallbackBase):
             }
 
     def gather_result(self, res, status=''):
+        del res._result["stdout_lines"]
+        del res._result["stdout"]
+        res._result["stdout_lines"] = []
+        res._result["stdout"] = ''
         if res._task.loop and "results" in res._result and res._host.name in self.item_results:
             res._result.update({"results": self.item_results[res._host.name]})
             del self.item_results[res._host.name]
@@ -177,8 +181,6 @@ class PlaybookResultCallBack(CallbackBase):
     def v2_runner_on_ok(self, res, **kwargs):
         if "ansible_facts" in res._result:
             del res._result["ansible_facts"]
-        del res._result["stdout_lines"]
-        del res._result["stdout"]
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):

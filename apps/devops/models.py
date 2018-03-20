@@ -124,8 +124,8 @@ class Playbook(AdHoc):
                 }
                 """
         result = {'contacted': [], 'dark': {}}
-        # logger.info(output)
-        # print(output)
+        logger.info(output)
+        print(output)
         for host, stat in output['stats'].items():
             if stat['unreachable'] == 0 and stat['failures'] == 0:
                 result['contacted'].append(host)
