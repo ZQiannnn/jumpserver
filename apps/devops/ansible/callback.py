@@ -3,6 +3,10 @@
 from ansible.plugins.callback import CallbackBase
 from ansible.plugins.callback.default import CallbackModule
 
+from common.utils import get_logger
+
+logger = get_logger(__file__)
+
 
 class AdHocResultCallback(CallbackModule):
     """
@@ -168,8 +172,6 @@ class PlaybookResultCallBack(CallbackBase):
             res._result.update({"results": self.item_results[res._host.name]})
             del self.item_results[res._host.name]
         res._result['status'] = status
-        if len(res._result['stderr_lines']) > 20:
-            res._result['stderr_lines'] = res._result['stderr_lines'][-20:]
         self.results[-1]['tasks'][-1]['hosts'][res._host.name] = res._result
 
     def v2_runner_on_ok(self, res, **kwargs):
@@ -179,6 +181,7 @@ class PlaybookResultCallBack(CallbackBase):
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
+        logger.info(res.task_name, res._result)
         self.gather_result(res, 'failed')
 
     def v2_runner_on_unreachable(self, res, **kwargs):
