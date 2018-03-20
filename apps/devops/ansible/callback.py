@@ -182,7 +182,8 @@ class PlaybookResultCallBack(CallbackBase):
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
-        logger.info(res.task_name, res._result)
+        logger.info(res.task_name)
+        logger.info(res._result)
         print(res.task_name, res._result)
         self.gather_result(res, 'failed')
 

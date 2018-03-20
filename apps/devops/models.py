@@ -151,6 +151,7 @@ class Playbook(AdHoc):
         options = options._replace(playbook_path=self.playbook_path)
         options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         runner = PlayBookRunner(self.inventory, options)
+        print(self.inventory.host_list)
         logger.info(self.inventory.host_list)
         try:
             result, output = runner.run()
@@ -158,7 +159,7 @@ class Playbook(AdHoc):
             self.is_running = False
             self.save()
             return result, summary
-        except AnsibleError as e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
