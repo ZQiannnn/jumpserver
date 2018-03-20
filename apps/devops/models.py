@@ -124,7 +124,8 @@ class Playbook(AdHoc):
                 }
                 """
         result = {'contacted': [], 'dark': {}}
-        # logger.info(output)
+        logger.info(output)
+        print(output)
         for host, stat in output['stats'].items():
             if stat['unreachable'] == 0 and stat['failures'] == 0:
                 result['contacted'].append(host)
@@ -150,8 +151,7 @@ class Playbook(AdHoc):
         options = options._replace(playbook_path=self.playbook_path)
         options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         runner = PlayBookRunner(self.inventory, options)
-        logger.info(self.inventory)
-        print(self.inventory)
+        logger.info(self.inventory.host_list)
         try:
             result, output = runner.run()
             summary = self._clean_result(output)

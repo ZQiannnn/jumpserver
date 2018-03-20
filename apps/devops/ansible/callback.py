@@ -177,6 +177,8 @@ class PlaybookResultCallBack(CallbackBase):
     def v2_runner_on_ok(self, res, **kwargs):
         if "ansible_facts" in res._result:
             del res._result["ansible_facts"]
+        del res._result["stdout_lines"]
+        del res._result["stdout"]
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
