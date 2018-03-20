@@ -133,6 +133,7 @@ class Playbook(AdHoc):
         for task in output['plays'][0]['tasks']:
             for host, detail in task.get('hosts', {}).items():
                 if host in result['contacted']:
+                    logger.info("ignore host:" + host + "  with:" + str(result['contacted']))
                     continue
                 if detail.get('status') == 'failed' or detail.get('status') == 'unreachable':
                     if not result['dark'].get(host):
