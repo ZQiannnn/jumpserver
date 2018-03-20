@@ -24,7 +24,7 @@ class Config:
     DEBUG = True
 
     # DEBUG, INFO, WARNING, ERROR, CRITICAL can set. See https://docs.djangoproject.com/en/1.10/topics/logging/
-    LOG_LEVEL = 'DEBUG'
+    LOG_LEVEL = 'INFO'
     LOG_DIR = os.path.join(BASE_DIR, 'logs')
 
     # Database setting, Support sqlite3, mysql, postgres ....
