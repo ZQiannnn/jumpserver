@@ -91,7 +91,7 @@
                 let $this = $(this);
                 let name = $this.data('name');
                 let uid = $this.data('uid');
-                let the_url = '{% url "api-devops:task-opt-detail" pk=DEFAULT_PK %}'``
+                let the_url = '{% url "api-devops:task-opt-detail" pk=DEFAULT_PK %}'
                 objectDelete($this, name, the_url);
             }).on('click', '.btn-task-exec', function () {
             //执行任务
