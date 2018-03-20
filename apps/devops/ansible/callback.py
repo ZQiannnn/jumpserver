@@ -168,8 +168,8 @@ class PlaybookResultCallBack(CallbackBase):
             res._result.update({"results": self.item_results[res._host.name]})
             del self.item_results[res._host.name]
         res._result['status'] = status
-        if len(res._result['stderr_lines']) > 500:
-            res._result['stderr_lines'] = res._result['stderr_lines'][-500:]
+        if len(res._result['stderr_lines']) > 20:
+            res._result['stderr_lines'] = res._result['stderr_lines'][-20:]
         self.results[-1]['tasks'][-1]['hosts'][res._host.name] = res._result
 
     def v2_runner_on_ok(self, res, **kwargs):

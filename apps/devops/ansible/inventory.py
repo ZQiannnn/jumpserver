@@ -226,12 +226,12 @@ class PlaybookInventory(BaseInventory):
                     Variable.objects.filter(groups=Node.objects.get(value=group)))
                 if len(variable) > 0:
                     for key, value in variable[0].vars.items():
-                        variables.update({key: value})
+                        variables.update({key: value[:value.rindex("-")]})
             # 机器的变量
             variable = list(
                 Variable.objects.filter(assets=Asset.objects.get(hostname=host_data.get('hostname'))))
             if len(variable) > 0:
                 for key, value in variable[0].vars.items():
-                    variables.update({key: value})
+                    variables.update({key: value[:value.rindex("-")]})
 
             host_data['vars'] = variables
