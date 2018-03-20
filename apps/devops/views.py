@@ -3,18 +3,16 @@
 from __future__ import unicode_literals
 
 import logging
-from datetime import datetime
-from django.utils import timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
-from django.views.generic import TemplateView, DetailView, ListView
+from django.views.generic import TemplateView, DetailView, RedirectView
 
-from django.conf import settings
-from .forms import *
-from .models import *
 from assets.models import *
+from .forms import *
 from .hands import *
+from .models import *
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +124,17 @@ class VariableUpdateView(AdminUserRequiredMixin, TemplateView):
         }
         kwargs.update(context)
         return super(VariableUpdateView, self).get_context_data(**kwargs)
+
+
+class VariableCloneView(AdminUserRequiredMixin, RedirectView):
+    url = reverse_lazy('devops:variable-list')
+
+    def get(self, request, *args, **kwargs):
+        #: 克隆一个变量组
+        old_var = Variable.objects.get(id=kwargs['pk'])
+        new_var = Variable(name=old_var.name + "-copy", vars=old_var.vars, desc=old_var.desc + "-copy")
+        new_var.save()
+        return super(VariableCloneView, self).get(request, *args, **kwargs)
 
 
 class VariableDetailView(AdminUserRequiredMixin, DetailView):

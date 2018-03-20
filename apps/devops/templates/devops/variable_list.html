@@ -63,13 +63,16 @@
                         createdCell: function (td, cellData, rowData) {
                             let update_btn;
                             let del_btn;
-                            update_btn = '<a href="{% url "devops:variable-update" pk=99991937 %}" class="btn btn-xs btn-info">{% trans "Update" %}</a>'.replace('99991937', cellData);
+                            let clone_btn;
+                            clone_btn = '<a href="{% url "devops:variable-clone" pk=99991937 %}" class="btn btn-xs btn-primary">{% trans "Clone" %}</a>'.replace('99991937', cellData);
+
+                            update_btn = '<a href="{% url "devops:variable-update" pk=99991937 %}" class="btn m-l-xs btn-xs btn-info">{% trans "Update" %}</a>'.replace('99991937', cellData);
 
                             del_btn = '<a class="btn btn-xs btn-danger m-l-xs btn-variable-delete" data-uid="99991937" data-name="99991938">{% trans "Delete" %}</a>'
                                 .replace('99991937', cellData)
                                 .replace('99991938', rowData.name);
 
-                            $(td).html(update_btn + del_btn);
+                            $(td).html(clone_btn+update_btn + del_btn);
                         }
                     }
                 ],
