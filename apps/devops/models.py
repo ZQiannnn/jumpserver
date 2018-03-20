@@ -125,8 +125,14 @@ class Playbook(AdHoc):
                 """
         result = {'contacted': [], 'dark': {}}
 
+        for host, stat in output['stats'].items():
+            if stat['unreachable'] == 0 and stat['failures'] == 0:
+                result['contacted'].append(host)
+
         for task in output['plays'][0]['tasks']:
             for host, detail in task.get('hosts', {}).items():
+                if host in result['contacted']:
+                    continue
                 if detail.get('status') == 'failed' or detail.get('status') == 'unreachable':
                     if not result['dark'].get(host):
                         result['dark'][host] = {}
@@ -135,9 +141,6 @@ class Playbook(AdHoc):
                     host_data[task['task'].get('name', '')] = {
                         'msg': '%s => %s' % (detail.get('msg', ''), detail.get('stderr_lines', ''))}
 
-        for host, stat in output['stats'].items():
-            if stat['unreachable'] == 0 and stat['failures'] == 0:
-                result['contacted'].append(host)
         return result
 
     def _run_only(self):
