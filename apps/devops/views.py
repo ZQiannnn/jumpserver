@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import logging
+import uuid
 from collections import OrderedDict
 
 import os
@@ -69,7 +70,7 @@ class TaskCloneView(AdminUserRequiredMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         #: 克隆一个变量组
         old_task = PlayBookTask.objects.get(id=kwargs['pk'])
-        new_task = PlayBookTask(name=old_task.name + "-copy", desc=old_task.desc + "-copy",
+        new_task = PlayBookTask(name=old_task.name + "-copy-"+uuid.uuid4().hex, desc=old_task.desc + "-copy",
                                 ansible_role_id=old_task.ansible_role_id, tags=old_task.tags,
                                 system_user_id=old_task.system_user_id)
         new_task.save()
