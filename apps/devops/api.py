@@ -159,7 +159,7 @@ class TaskUpdateGroupApi(generics.RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         response = super(TaskUpdateGroupApi, self).update(request, *args, **kwargs)
-        create_update_task_playbook(self.get_object())
+        create_update_task_playbook(self.get_object(), request.user)
         return response
 
 
@@ -183,7 +183,7 @@ class TaskUpdateAssetApi(generics.RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         response = super(TaskUpdateAssetApi, self).update(request, *args, **kwargs)
-        create_update_task_playbook(self.get_object())
+        create_update_task_playbook(self.get_object(), request.user)
         return response
 
 
@@ -195,7 +195,7 @@ class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         response = super(TaskUpdateSystemUserApi, self).update(request, *args, **kwargs)
-        create_update_task_playbook(self.get_object())
+        create_update_task_playbook(self.get_object(), request.user)
         return response
 
 
