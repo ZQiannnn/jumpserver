@@ -177,11 +177,11 @@ class PlaybookResultCallBack(CallbackBase):
     def v2_runner_on_ok(self, res, **kwargs):
         if "ansible_facts" in res._result:
             del res._result["ansible_facts"]
-
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
         logger.info(res.task_name, res._result)
+        print(res.task_name, res._result)
         self.gather_result(res, 'failed')
 
     def v2_runner_on_unreachable(self, res, **kwargs):
