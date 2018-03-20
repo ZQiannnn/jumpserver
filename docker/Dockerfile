@@ -11,13 +11,13 @@ RUN tar xf Python-3.6.1.tar.xz  && cd Python-3.6.1 && ./configure && make && mak
 RUN python3 -m venv py3
 
 # 3. 安装yum依赖
-RUN wget https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/rpm_requirements.txt ~/rpm_requirements.txt
-RUN wget https://raw.githubusercontent.com/jumpserver/coco/master/requirements/rpm_requirements.txt ~/coco_rpm_requirements.txt
+RUN curl -o  ~/rpm_requirements.txt https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/rpm_requirements.txt
+RUN curl -o  ~/coco_rpm_requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/rpm_requirements.txt
 RUN yum -y install $(cat ~/rpm_requirements.txt) && yum -y install $(cat ~/coco_rpm_requirements.txt)
 
 # 4. 安装pip依赖
-RUN wget https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/requirements.txt ~/requirements.txt
-RUN wget https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt ~/coco_requirements.txt
+RUN curl -o ~/requirements.txt https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/requirements.txt
+RUN curl -o ~/requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt ~/coco_requirements.txt
 RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  --upgrade pip && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/requirements.txt &&  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/coco_requirements.txt
 
 
