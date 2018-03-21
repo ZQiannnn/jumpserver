@@ -130,11 +130,11 @@ class Playbook(AdHoc):
 
         for task in output['plays'][0]['tasks']:
             for host, detail in task.get('hosts', {}).items():
-                if host in result['contacted']:
-                    logger.info("ignore host:" + host + "  with:" + str(result['contacted']))
-                    print("ignore host:" + host + "  with:" + str(result['contacted']))
-                    continue
                 if detail.get('status') == 'failed' or detail.get('status') == 'unreachable':
+                    if host in result['contacted']:
+                        logger.info("ignore host:" + host + "  with:" + str(result['contacted']))
+                        print("ignore host:" + host + "  with:" + str(result['contacted']))
+                        continue
                     if not result['dark'].get(host):
                         result['dark'][host] = {}
                     # 找到每个task对应的失败host与消息
@@ -146,7 +146,8 @@ class Playbook(AdHoc):
 
                     host_data[task['task'].get('name', '')] = {
                         'msg': '%s => %s' % (msg, detail.get('stderr_lines', ''))}
-
+        logger.info(result)
+        print(result)
         return result
 
     def _run_only(self):
