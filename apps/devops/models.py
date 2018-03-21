@@ -47,9 +47,9 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
-    def run(self, current_user=None, record=True):
+    def run(self, current_user=None, ids=None, record=True):
         if self.latest_adhoc:
-            return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, record=record)
+            return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record)
         else:
             return {'error': 'No adhoc'}
 
@@ -75,7 +75,7 @@ class Playbook(AdHoc):
             become_info = None
         inventory = PlaybookInventory(
             task=self.playbook_task, run_as_admin=self.run_as_admin,
-            run_as=self.run_as, become_info=become_info, current_user=self.current_user
+            run_as=self.run_as, become_info=become_info, current_user=self.current_user, ids=self.ids
         )
         return inventory
 
@@ -83,7 +83,8 @@ class Playbook(AdHoc):
     def playbook_task(self):
         return PlayBookTask.objects.get(id=self.task.id)
 
-    def run(self, current_user=None, record=True):
+    def run(self, current_user=None, ids=None, record=True):
+        self.ids = ids
         self.current_user = User.objects.get(id=current_user)
         if record:
             result, summary = self._run_and_record()

@@ -28,6 +28,8 @@
 
 
 {% block custom_foot_js %}
+
+    <script src="{% static "js/plugins/layer/layer.js" %}"></script>
     <script>
         $(document).ready(function () {
             let options = {
@@ -70,7 +72,7 @@
                                     .replace('99991937', cellData)
                                     .replace('99991938', rowData.name);
 
-                                $(td).html(clone_btn+update_btn + del_btn + exec_btn);
+                                $(td).html(clone_btn + update_btn + del_btn + exec_btn);
                             {% else %}
                                 $(td).html(exec_btn);
                             {% endif %}
@@ -102,25 +104,58 @@
             executeTask(uid);
         });
 
-         function executeTask(id) {
+        function executeTask(id) {
             let success_message = "正在执行中。。。"
             let error = function (data) {
                 toastr.error(data);
             }
-            var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id);
-            var success = function () {
-                setTimeout(function () {
-                    console.log("ok")
-                }, 1000);
-                window.location = "{% url 'ops:task-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
-            };
             APIUpdateAttr({
-                url: the_url,
+                url: '{% url "devops:task-select" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id),
                 method: 'GET',
-                success_message: success_message,
-                error: error,
-                success: success
+                error: function (data) {
+                    toastr.error(data);
+                },
+                success: function (data) {
+                    layer.open({
+                        type: 1,
+                        title: '请选择要执行任务的机器'
+                        , content: data, area: ['500px']
+                        , btn: ['确认', '关闭']
+                        , zIndex: 500
+                        , btnAlign: 'c' //按钮居中
+                        , shade: 0 //不显示遮罩
+                        , yes: function () {
+                            var ids = [];
+
+                            ids = ids.concat($("#task_" + id).select2('data').map(function (currentValue) {
+                                return currentValue.id;
+                            }));
+                            console.log(ids)
+                            var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id);
+                            var success = function () {
+                                setTimeout(function () {
+                                    console.log("ok")
+                                }, 1000);
+                                window.location = "{% url 'ops:task-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
+                            };
+                            APIUpdateAttr({
+                                url: the_url,
+                                method: 'GET',
+                                success_message: success_message,
+                                error: error,
+                                success: success,
+                                body: {"ids": JSON.stringify(ids)}
+                            });
+                            layer.closeAll();
+                        }, no: function () {
+                            layer.closeAll();
+                        }
+                    });
+                },
+                content_type: 'text/html; charset=utf-8',
+                data_type: 'html'
             });
+
         }
 
     </script>

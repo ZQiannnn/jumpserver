@@ -1,0 +1,19 @@
+{% load static %}
+{% load i18n %}
+
+<div class="form-horizontal" >
+<div class="form-group" style="margin: 15px auto;text-align: center" >
+
+ <select multiple="multiple" id="task_{{ id }}" style="width: 80%;margin: 0 auto;display: block;z-index: 100000" class="select2" >
+    {% for asset in assets %}
+         <option value="{{ asset.id }}"  id="opt_{{ asset.id }}">{{ asset.hostname }} - {{ asset.ip }}</option>
+     {% endfor %}
+
+</select>
+</div>
+</div>
+<script>
+    $('select.select2').select2({
+                multiple: true
+            });
+</script>

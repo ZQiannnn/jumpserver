@@ -19,6 +19,7 @@ from .utils import create_update_task_playbook
 from .forms import *
 from .hands import *
 from .models import *
+from perms.utils import NodePermissionUtil
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,29 @@ class TaskCreateView(AdminUserRequiredMixin, TemplateView):
         return super(TaskCreateView, self).get_context_data(**kwargs)
 
 
+class TaskSelectView(AdminUserRequiredMixin, TemplateView):
+    template_name = 'devops/task_select.html'
+
+    def get_context_data(self, **kwargs):
+        task = PlayBookTask.objects.get(id=kwargs['pk'])
+        assets = set()
+        assets.update(set(task.assets.all()))
+        for group in task.groups.all():
+            assets.update(set(group.get_all_active_assets()))
+
+        if not self.request.user.is_superuser:
+            granted_assets = NodePermissionUtil.get_user_assets(user=self.request.user)
+            # : 取交集
+            assets = set(assets).intersection(set(granted_assets))
+
+        context = {
+            'id': kwargs['pk'],
+            'assets': assets,
+        }
+        kwargs.update(context)
+        return super(TaskSelectView, self).get_context_data(**kwargs)
+
+
 class TaskUpdateView(AdminUserRequiredMixin, TemplateView):
     template_name = 'devops/task_update.html'
 
@@ -70,7 +94,7 @@ class TaskCloneView(AdminUserRequiredMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         #: 克隆一个变量组
         old_task = PlayBookTask.objects.get(id=kwargs['pk'])
-        new_task = PlayBookTask(name=old_task.name + "-copy-"+uuid.uuid4().hex, desc=old_task.desc + "-copy",
+        new_task = PlayBookTask(name=old_task.name + "-copy-" + uuid.uuid4().hex, desc=old_task.desc + "-copy",
                                 ansible_role_id=old_task.ansible_role_id, tags=old_task.tags,
                                 system_user_id=old_task.system_user_id)
         new_task.save()

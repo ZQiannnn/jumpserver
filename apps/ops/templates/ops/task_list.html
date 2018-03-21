@@ -11,18 +11,21 @@
         <div class="form-group" id="date">
             <div class="input-daterange input-group" id="datepicker">
                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                <input type="text" class="input-sm form-control" style="width: 100px;" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+                <input type="text" class="input-sm form-control" style="width: 100px;" name="date_from"
+                       value="{{ date_from|date:'Y-m-d' }}">
                 <span class="input-group-addon">to</span>
-                <input type="text" class="input-sm form-control" style="width: 100px;" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+                <input type="text" class="input-sm form-control" style="width: 100px;" name="date_to"
+                       value="{{ date_to|date:'Y-m-d' }}">
             </div>
         </div>
         <div class="input-group">
-            <input type="text" class="form-control input-sm" name="keyword" placeholder="{% trans 'Search'  %}" value="{{ keyword }}">
+            <input type="text" class="form-control input-sm" name="keyword" placeholder="{% trans 'Search' %}"
+                   value="{{ keyword }}">
         </div>
         <div class="input-group">
             <div class="input-group-btn">
                 <button id='search_btn' type="submit" class="btn btn-sm btn-primary">
-                    {% trans "Search"  %}
+                    {% trans "Search" %}
                 </button>
             </div>
         </div>
@@ -44,26 +47,27 @@
 {% block table_body %}
     {% for object in task_list %}
         <tr class="gradeX">
-            <td class="text-center"><input type="checkbox" class="cbx-term"> </td>
+            <td class="text-center"><input type="checkbox" class="cbx-term"></td>
             <td class="text-left"><a href="{% url 'ops:task-detail' pk=object.id %}">{{ object.name }}</a></td>
             <td class="text-center">
-                <span class="text-danger">{{ object.history_summary.failed }}</span>/<span class="text-navy">{{ object.history_summary.success}}</span>/{{ object.history_summary.total}}
+                <span class="text-danger">{{ object.history_summary.failed }}</span>/<span
+                    class="text-navy">{{ object.history_summary.success }}</span>/{{ object.history_summary.total }}
             </td>
-            <td class="text-center">{{ object.adhoc.all | length}}</td>
-            <td class="text-center">{{ object.latest_adhoc.hosts | length}}</td>
+            <td class="text-center">{{ object.adhoc.all | length }}</td>
+            <td class="text-center">{{ object.latest_adhoc.hosts | length }}</td>
             <td class="text-center">
-            {% if object.latest_history %}
-                {% if object.latest_history.is_success %}
-                    <i class="fa fa-check text-navy"></i>
-                {% else %}
-                    <i class="fa fa-times text-danger"></i>
+                {% if object.latest_history %}
+                    {% if object.latest_history.is_success %}
+                        <i class="fa fa-check text-navy"></i>
+                    {% else %}
+                        <i class="fa fa-times text-danger"></i>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
             </td>
             <td class="text-center">{{ object.latest_history.date_start }}</td>
             <td class="text-center">
                 {% if object.latest_history %}
-                {{ object.latest_history.timedelta|floatformat }} s
+                    {{ object.latest_history.timedelta|floatformat }} s
                 {% endif %}
             </td>
             <td class="text-center">
@@ -75,57 +79,111 @@
 {% endblock %}
 
 {% block custom_foot_js %}
-<script src="{% static 'js/plugins/datepicker/bootstrap-datepicker.js' %}"></script>
-<script>
-$(document).ready(function() {
-    $('table').DataTable({
-        "searching": false,
-        "paging": false,
-        "bInfo" : false,
-        "order": []
-    });
-    $('.select2').select2({
-        dropdownAutoWidth : true,
-        width: 'auto'
-    });
-    $('#date .input-daterange').datepicker({
-        format: "yyyy-mm-dd",
-        todayBtn: "linked",
-        keyboardNavigation: false,
-        forceParse: false,
-        calendarWeeks: true,
-        autoclose: true
-    });
+    <script src="{% static 'js/plugins/datepicker/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static "js/plugins/layer/layer.js" %}"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable({
+                "searching": false,
+                "paging": false,
+                "bInfo": false,
+                "order": []
+            });
+            $('.select2').select2({
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+            $('#date .input-daterange').datepicker({
+                format: "yyyy-mm-dd",
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+            });
 
-}).on('click', '.btn-del', function () {
-    var $this = $(this);
-    var name = $this.closest("tr").find(":nth-child(2)").children('a').html();
-    var uid = $this.data('uid');
-    var the_url = '{% url "api-ops:task-detail" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', uid);
-    objectDelete($this, name, the_url);
-}).on('click', '.btn-run', function () {
-    var $this = $(this);
-    var name = $this.closest("tr").find(":nth-child(2)").children('a').html();
-    var uid = $this.data('uid');
-    var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', uid);
-    var error = function (data) {
-        alert(data)
-    };
-    var success = function () {
-        setTimeout(function () {
-            console.log("ok")
-        }, 1000);
-        window.location = "{% url 'ops:task-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', uid);
-    };
-    APIUpdateAttr({
-        url: the_url,
-        error: error,
-        method: 'GET',
-        success: success,
-        success_message: "{% trans 'Task start: ' %}" + " " + name
-    });
+        }).on('click', '.btn-del', function () {
+            var $this = $(this);
+            var name = $this.closest("tr").find(":nth-child(2)").children('a').html();
+            var uid = $this.data('uid');
+            var the_url = '{% url "api-ops:task-detail" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', uid);
+            objectDelete($this, name, the_url);
+        }).on('click', '.btn-run', function () {
+            var $this = $(this);
+            var name = $this.closest("tr").find(":nth-child(2)").children('a').html();
+            var uid = $this.data('uid');
+            executeTask(uid,name)
 
-})
-</script>
+        })
+
+        function executeTask(id,name) {
+            let success_message = "正在执行中。。。"
+            let error = function (data) {
+                toastr.error(data);
+            }
+            APIUpdateAttr({
+                url: '{% url "devops:task-select" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id),
+                method: 'GET',
+                error: function (data) {
+                   var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id);
+                    var error = function (data) {
+                        alert(data)
+                    };
+                    var success = function () {
+                        setTimeout(function () {
+                            console.log("ok")
+                        }, 1000);
+                    };
+                    APIUpdateAttr({
+                        url: the_url,
+                        error: error,
+                        method: 'GET',
+                        success: success,
+                        success_message: "{% trans 'Task start: ' %}" + " " + name
+                    });
+                },
+                success: function (data) {
+                    layer.open({
+                        type: 1,
+                        title: '请选择要执行任务的机器'
+                        , content: data, area: ['500px']
+                        , btn: ['确认', '关闭']
+                        , zIndex: 500
+                        , btnAlign: 'c' //按钮居中
+                        , shade: 0 //不显示遮罩
+                        , yes: function () {
+                            var ids = [];
+
+                            ids = ids.concat($("#task_" + id).select2('data').map(function (currentValue) {
+                                return currentValue.id;
+                            }));
+                            console.log(ids)
+                            var the_url = '{% url "api-ops:task-run" pk=DEFAULT_PK %}'.replace('{{ DEFAULT_PK }}', id);
+                            var success = function () {
+                                setTimeout(function () {
+                                    console.log("ok")
+                                }, 1000);
+                                window.location = "{% url 'ops:task-detail' pk=DEFAULT_PK %}".replace('{{ DEFAULT_PK }}', id);
+                            };
+                            APIUpdateAttr({
+                                url: the_url,
+                                method: 'GET',
+                                success_message: success_message,
+                                error: error,
+                                success: success,
+                                body: {"ids": JSON.stringify(ids)}
+                            });
+                            layer.closeAll();
+                        }, no: function () {
+                            layer.closeAll();
+                        }
+                    });
+                },
+                content_type: 'text/html; charset=utf-8',
+                data_type: 'html'
+            });
+
+        }
+    </script>
 {% endblock %}
 
