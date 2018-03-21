@@ -28,7 +28,7 @@ class TaskListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
         对Ansible的task list的 展示 API操作
     """
-    queryset = PlayBookTask.objects.all()
+    queryset = PlayBookTask.objects.all().order_by('name')
     serializer_class = TaskReadSerializer
     permission_classes = (IsValidUser,)
 
@@ -200,7 +200,7 @@ class TaskUpdateSystemUserApi(generics.RetrieveUpdateAPIView):
 
 
 class VariableViewSet(viewsets.ModelViewSet):
-    queryset = Variable.objects.all()
+    queryset = Variable.objects.all().order_by('name')
     serializer_class = VariableSerializer
     permission_classes = (IsSuperUser,)
 
