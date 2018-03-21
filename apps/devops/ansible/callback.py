@@ -181,7 +181,7 @@ class PlaybookResultCallBack(CallbackBase):
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
-        print(res.task_name, res._result['stderr'])
+        print(res.task_name, res._result)
         self.gather_result(res, 'failed')
 
     def v2_runner_on_unreachable(self, res, **kwargs):
