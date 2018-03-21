@@ -109,10 +109,10 @@ def update_asset_hardware_info_manual(asset):
     return update_assets_hardware_info_util([asset], task_name=task_name)
 
 
-@celery_app.task
-@register_as_period_task(interval=3600)
-@after_app_ready_start
-@after_app_shutdown_clean
+# @celery_app.task
+# @register_as_period_task(interval=3600)
+# @after_app_ready_start
+# @after_app_shutdown_clean
 def update_assets_hardware_info_period():
     """
     Update asset hardware period task
@@ -182,10 +182,10 @@ def test_admin_user_connectability_util(admin_user, task_name):
     return result
 
 
-@celery_app.task
-@register_as_period_task(interval=3600)
-@after_app_ready_start
-@after_app_shutdown_clean
+# @celery_app.task
+# @register_as_period_task(interval=3600)
+# @after_app_ready_start
+# @after_app_shutdown_clean
 def test_admin_user_connectability_period():
     """
     A period task that update the ansible task period
@@ -282,10 +282,10 @@ def test_system_user_connectability_manual(system_user):
     return test_system_user_connectability_util(system_user, task_name)
 
 
-@shared_task
-@register_as_period_task(interval=3600)
-@after_app_ready_start
-@after_app_shutdown_clean
+# @shared_task
+# @register_as_period_task(interval=3600)
+# @after_app_ready_start
+# @after_app_shutdown_clean
 def test_system_user_connectability_period():
     system_users = SystemUser.objects.all()
     for system_user in system_users:
