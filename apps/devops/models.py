@@ -144,7 +144,7 @@ class Playbook(AdHoc):
                     if msg == "All items completed":
                         for res in detail['results']:
                             msg = res['item'] + "===" + res['msg']
-                    total = detail.get('stderr') if detail.get('stderr', '') == '' else detail.get('stdout')
+                    total = detail.get('stderr') if detail.get('stderr', '') == '' else detail.get('stdout','')
                     host_data[task['task'].get('name', '')] = {
                         'msg': '%s => %s' % (msg, total)}
         logger.info(result)
