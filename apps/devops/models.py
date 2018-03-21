@@ -3,7 +3,6 @@
 import json
 import time
 
-from users.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -14,7 +13,8 @@ from assets.models import *
 from assets.models.user import AssetUser
 from common.utils import get_signer, get_logger
 from ops.models import Task, AdHoc, AdHocRunHistory
-from .ansible import AnsibleError, PlayBookRunner, get_default_options
+from users.models import User
+from .ansible import PlayBookRunner, get_default_options
 from .ansible.inventory import PlaybookInventory
 
 logger = get_logger(__file__)
@@ -124,8 +124,6 @@ class Playbook(AdHoc):
                 }
                 """
         result = {'contacted': [], 'dark': {}}
-        logger.info(output)
-        print(output)
         for host, stat in output['stats'].items():
             if stat['unreachable'] == 0 and stat['failures'] == 0:
                 result['contacted'].append(host)
@@ -141,8 +139,13 @@ class Playbook(AdHoc):
                         result['dark'][host] = {}
                     # 找到每个task对应的失败host与消息
                     host_data = result['dark'].get(host)
+                    msg = detail.get('msg', '')
+                    if msg == "All items completed":
+                        for res in detail['results']:
+                            msg = res['item'] + "===" + res['msg']
+
                     host_data[task['task'].get('name', '')] = {
-                        'msg': '%s => %s' % (detail.get('msg', ''), detail.get('stderr_lines', ''))}
+                        'msg': '%s => %s' % (msg, detail.get('stderr_lines', ''))}
 
         return result
 
@@ -151,12 +154,8 @@ class Playbook(AdHoc):
         options = options._replace(playbook_path=self.playbook_path)
         options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         runner = PlayBookRunner(self.inventory, options)
-        print(self.inventory.host_list)
-        logger.info(self.inventory.host_list)
         try:
             result, output = runner.run()
-            print(result)
-            logger.info(result)
             summary = self._clean_result(output)
             self.is_running = False
             self.save()

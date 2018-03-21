@@ -168,14 +168,11 @@ class PlaybookResultCallBack(CallbackBase):
             }
 
     def gather_result(self, res, status=''):
-        del res._result["stdout_lines"]
-        del res._result["stdout"]
-        res._result["stdout_lines"] = []
-        res._result["stdout"] = ''
         if res._task.loop and "results" in res._result and res._host.name in self.item_results:
             res._result.update({"results": self.item_results[res._host.name]})
             del self.item_results[res._host.name]
         res._result['status'] = status
+
         self.results[-1]['tasks'][-1]['hosts'][res._host.name] = res._result
 
     def v2_runner_on_ok(self, res, **kwargs):
@@ -184,9 +181,7 @@ class PlaybookResultCallBack(CallbackBase):
         self.gather_result(res, 'ok')
 
     def v2_runner_on_failed(self, res, **kwargs):
-        logger.info(res.task_name)
-        logger.info(res._result)
-        print(res.task_name, res._result)
+        print(res.task_name, res._result['stderr'])
         self.gather_result(res, 'failed')
 
     def v2_runner_on_unreachable(self, res, **kwargs):
