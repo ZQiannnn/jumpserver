@@ -16,6 +16,7 @@
         <tr>
             <th class="text-center">{% trans 'Name' %}</th>
             <th class="text-center">{% trans 'Description' %}</th>
+            <th class="text-center">{% trans 'Success' %}</th>
             <th class="text-center">{% trans 'Ansible Role' %}</th>
             <th class="text-center">{% trans 'Tags' %}</th>
             <th class="text-center">{% trans 'Action' %}</th>
@@ -56,7 +57,19 @@
                         }
                     },
                     {
-                        targets: 4,
+                        targets: 2,
+                        createdCell: function (td, cellData) {
+                            if (cellData==null){
+                                $(td).html('')
+                            }else if(cellData){
+                                $(td).html(' <i class="fa fa-check text-navy"></i>')
+                            }else{
+                                $(td).html('<i class="fa fa-times text-danger"></i>')
+                            }
+                        }
+                    },
+                    {
+                        targets: 5,
                         createdCell: function (td, cellData, rowData) {
                             let update_btn;
                             let clone_btn;
@@ -79,7 +92,7 @@
                         }
                     }
                 ],
-                columns: [{data: "name"}, {data: "desc"}, {data: "ansible_role_name"},
+                columns: [{data: "name"}, {data: "desc"}, {data: "is_success"}, {data: "ansible_role_name"},
                     {data: "tags"}, {data: "id"}],
                 ajax_url: '{% url "api-devops:task-list" %}'
             }

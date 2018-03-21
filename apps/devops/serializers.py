@@ -30,15 +30,20 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class TaskReadSerializer(serializers.ModelSerializer):
     ansible_role_name = serializers.SerializerMethodField()
+    is_success = serializers.SerializerMethodField()
     tags = serializers.ListField(required=False, child=serializers.CharField())
 
     class Meta:
         model = PlayBookTask
-        exclude = ('assets', 'groups', 'password', )
+        exclude = ('assets', 'groups', 'password',)
 
     @staticmethod
     def get_ansible_role_name(obj):
         return obj.ansible_role.name
+
+    @staticmethod
+    def get_is_success(obj):
+        return  obj.latest_history.is_success if obj.latest_history else None
 
 
 class TaskUpdateGroupSerializer(serializers.ModelSerializer):
