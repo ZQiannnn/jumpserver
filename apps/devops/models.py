@@ -167,6 +167,7 @@ class Playbook(AdHoc):
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
             self.is_running = False
             self.save()
+            return {}, {"dark": {"playbook": {"msg": str(e)}}, "contacted": []}
             pass
 
     def __str__(self):
