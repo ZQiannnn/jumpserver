@@ -35,7 +35,7 @@ class PlayBookTask(Task):
     password = models.CharField(max_length=200, verbose_name=_('WebHook Password'), blank=True, null=True)
 
     ansible_role = models.ForeignKey(AnsibleRole, verbose_name=_('Ansible Role'), related_name='task')
-    tags = TextSeparatedValuesField(verbose_name=_('Tags'), null=True, blank=True)
+    tags = TextSeparatedValuesField(verbose_name=_('Tags'), null=True, blank=True, default=['all'])
     assets = models.ManyToManyField(Asset, verbose_name=_('Assets'), related_name='task', blank=True)
     groups = models.ManyToManyField(Node, verbose_name=_('Asset Groups'), related_name='task', blank=True)
     system_user = models.ForeignKey(SystemUser, null=True, blank=True, verbose_name=_('System User'),
@@ -154,7 +154,7 @@ class Playbook(AdHoc):
     def _run_only(self):
         options = get_default_options()
         options = options._replace(playbook_path=self.playbook_path)
-        options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
+        # options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         runner = PlayBookRunner(self.inventory, options)
         try:
             result, output = runner.run()
