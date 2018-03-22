@@ -170,7 +170,7 @@
                         orderable: false,
                         createdCell: function (td, cellData, rowData) {
                             var index = cellData.lastIndexOf("-")
-                            $(td).html(cellData.substring(0,index));
+                            $(td).html(cellData.substring(0, index));
                         }
                     },
                     {
@@ -178,7 +178,7 @@
                         orderable: false,
                         createdCell: function (td, cellData, rowData) {
                             var index = cellData.lastIndexOf("-")
-                            $(td).html(cellData.substring(index+1,cellData.length));
+                            $(td).html(cellData.substring(index + 1, cellData.length));
                         }
                     },
                     {
@@ -192,12 +192,21 @@
                         }
                     }
                 ],
-                columns: [{data: "key"}, {data: "value"},{data: "value"}, {data: "key"}],
+                columns: [{data: "key"}, {data: "value"}, {data: "value"}, {data: "key"}],
                 ajax_url: '{% url "api-devops:variable-vars" pk=variable.id %}',
                 order: [[0, 'asc']],
                 dom: '<"#uc.pull-left">ft<"row m-t"<"col-md-8"<"#op.col-md-6"><"col-md-6 text-center"i>><"col-md-4"p>>',
             }
-            jumpserver.initDataTable(options)
+            var table=jumpserver.initDataTable(options)
+            $('#vars_table').on('click', 'tr', function (event) {
+                var data=table.row( this ).data()
+                console.log(  );
+                $("#input_varKey").val(data.key)
+                 var index = data.value.lastIndexOf("-")
+                $("#input_varDesc").val(data.value.substring(index + 1, data.value.length))
+                $("#input_varValue").val(data.value.substring(0, index))
+
+            })
         }).on('submit', '#form', function () {
             let the_url = "{% url 'api-devops:variable-add-vars' pk=variable.id %}";
             let form = $('#form').serializeObject()
@@ -214,7 +223,7 @@
             });
             return false;
         }).on('click', '.btn-vars-delete', function () {
-            let key = $(this).data('uid')+"";
+            let key = $(this).data('uid') + "";
             let the_url = '{% url "api-devops:variable-delete-vars" pk=variable.id %}';
             let success = function () {
                 $('#vars_table').DataTable().ajax.reload();
