@@ -29,7 +29,7 @@ class TaskListView(AdminUserRequiredMixin, DatetimeSearchMixin, ListView):
             self.queryset = self.queryset.filter(
                 name__icontains=self.keyword,
             )
-        return self.queryset
+        return self.queryset.order_by('name')
 
     def get_context_data(self, **kwargs):
         context = {
