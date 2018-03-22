@@ -154,7 +154,9 @@ class Playbook(AdHoc):
     def _run_only(self):
         options = get_default_options()
         options = options._replace(playbook_path=self.playbook_path)
-        # options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
+        options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
+        print(options)
+        logger.info(options)
         runner = PlayBookRunner(self.inventory, options)
         try:
             result, output = runner.run()
