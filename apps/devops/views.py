@@ -51,7 +51,7 @@ class TaskCreateView(AdminUserRequiredMixin, TemplateView):
         return super(TaskCreateView, self).get_context_data(**kwargs)
 
 
-class TaskSelectView(AdminUserRequiredMixin, TemplateView):
+class TaskSelectView(LoginRequiredMixin, TemplateView):
     template_name = 'devops/task_select.html'
 
     def get_context_data(self, **kwargs):
