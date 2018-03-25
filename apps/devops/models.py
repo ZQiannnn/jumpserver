@@ -125,6 +125,7 @@ class Playbook(AdHoc):
                 }
                 """
         result = {'contacted': [], 'dark': {}}
+        print(output['stats'])
         for host, stat in output['stats'].items():
             if stat['unreachable'] == 0 and stat['failures'] == 0:
                 result['contacted'].append(host)
@@ -136,17 +137,31 @@ class Playbook(AdHoc):
                         logger.info("ignore host:" + host + "  with:" + str(result['contacted']))
                         print("ignore host:" + host + "  with:" + str(result['contacted']))
                         continue
+                    # 如果没找到这个host，初始化它
                     if not result['dark'].get(host):
-                        result['dark'][host] = {}
+                        result['dark'][host] = dict()
                     # 找到每个task对应的失败host与消息
                     host_data = result['dark'].get(host)
+
                     msg = detail.get('msg', '')
+                    item_msg = ""
                     if msg == "All items completed":
-                        for res in detail['results']:
-                            msg = res['item'] + "===" + res['msg']
-                    total = detail.get('stderr') if detail.get('stderr', '') == '' else detail.get('stdout', '')
+
+                        for i, res in enumerate(detail['results']):
+                            # 获取每个的消息
+                            del res['stdout']
+                            del res['stdout_lines']
+                            logger.info(res)
+                            total = res.get('stderr') if res.get('stderr', '') != '' else res.get('msg', '')
+                            total = total[-1000:] if total and len(total) > 1000 else total
+                            if len(total) == 0:
+                                continue
+                            total_msg = "%s===%s;" % (res['item'], total)
+                            item_msg += total_msg
+                    total = detail.get('stderr') if detail.get('stderr', '') != '' else detail.get('stdout', '')
+                    total = total[-1000:] if total and len(total) > 1000 else total
                     host_data[task['task'].get('name', '')] = {
-                        'msg': '%s => %s' % (msg, total)}
+                        'msg': '%s  %s' % (item_msg if item_msg != "" else msg, "=>"+total if total != "" else "")}
         logger.info(result)
         print(result)
         return result
@@ -157,8 +172,8 @@ class Playbook(AdHoc):
         options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
         print(options)
         logger.info(options)
-        runner = PlayBookRunner(self.inventory, options)
         try:
+            runner = PlayBookRunner(self.inventory, options)
             result, output = runner.run()
             summary = self._clean_result(output)
             self.is_running = False

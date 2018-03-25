@@ -38,7 +38,7 @@ def get_default_options():
         timeout=60,
         connection='ssh',
         module_path='',
-        forks=10,
+        forks=20,
         remote_user='root',
         private_key_file=None,
         ssh_common_args="",
