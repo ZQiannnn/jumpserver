@@ -167,7 +167,7 @@ class TaskStatusApi(generics.RetrieveAPIView):
     """Task update it's group api"""
     queryset = PlayBookTask.objects.all()
     serializer_class = TaskUpdateGroupSerializer
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsValidUser,)
 
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
