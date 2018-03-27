@@ -111,7 +111,7 @@ class Playbook(AdHoc):
         except Exception as e:
             import traceback
             traceback.print_exc()
-            return {}, {"dark": {"all": {"msg": str(e)}}, "contacted": []}
+            return {}, {"dark": {"all": {"playbook": {"msg": str(e)}}}, "contacted": []}
         finally:
             history.date_finished = timezone.now()
             history.timedelta = time.time() - time_start
@@ -161,7 +161,7 @@ class Playbook(AdHoc):
                     total = detail.get('stderr') if detail.get('stderr', '') != '' else detail.get('stdout', '')
                     total = total[-1000:] if total and len(total) > 1000 else total
                     host_data[task['task'].get('name', '')] = {
-                        'msg': '%s  %s' % (item_msg if item_msg != "" else msg, "=>"+total if total != "" else "")}
+                        'msg': '%s  %s' % (item_msg if item_msg != "" else msg, "=>" + total if total != "" else "")}
         logger.info(result)
         print(result)
         return result
@@ -185,7 +185,8 @@ class Playbook(AdHoc):
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
             self.is_running = False
             self.save()
-            return {}, {"dark": {"playbook": {"msg": str(e)}}, "contacted": []}
+            print(str(e))
+            return {}, {"dark": {"all": {"playbook": {"msg": str(e)}}}, "contacted": []}
             pass
 
     def __str__(self):
