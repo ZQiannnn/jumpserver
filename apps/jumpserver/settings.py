@@ -127,6 +127,7 @@ DATABASES = {
         'USER': CONFIG.DB_USER,
         'PASSWORD': CONFIG.DB_PASSWORD,
         'ATOMIC_REQUESTS': True,
+        'CONN_MAX_AGE': 900,
     }
 }
 

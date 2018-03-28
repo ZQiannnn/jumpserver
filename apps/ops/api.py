@@ -1,6 +1,8 @@
 # ~*~ coding: utf-8 ~*~
 import _thread
+from concurrent.futures import ThreadPoolExecutor
 import json
+import multiprocessing
 
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, status
@@ -32,7 +34,11 @@ class TaskRun(generics.RetrieveAPIView):
         if playbook and playbook.is_running:
             return Response('任务正在执行中，请查看作业中心...', status=status.HTTP_400_BAD_REQUEST)
         if playbook:
-            _thread.start_new_thread(run_ansible_task, (str(task.id), request.user.id, json.loads(request.GET.get('ids'))))
+            print(0)
+            run_ansible_task.delay(str(task.id), request.user.id, json.loads(request.GET.get('ids')))
+            # _thread.start_new_thread(run_ansible_task,
+            #                          (str(task.id), request.user.id, json.loads(request.GET.get('ids'))))
+
         else:
             run_ansible_task.delay(str(task.id), request.user.id)
         return Response({"msg": "start"})
