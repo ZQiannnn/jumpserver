@@ -143,7 +143,7 @@ class Playbook(AdHoc):
                     # 找到每个task对应的失败host与消息
                     host_data = result['dark'].get(host)
 
-                    msg = detail.get('msg', '')
+                    msg = detail.get('msg', '') + detail.get('exception', '')
                     item_msg = ""
                     if msg == "All items completed":
 
@@ -158,8 +158,10 @@ class Playbook(AdHoc):
                                 continue
                             total_msg = "%s===%s;" % (res['item'], total)
                             item_msg += total_msg
+                    print(detail)
                     total = detail.get('stderr') if detail.get('stderr', '') != '' else detail.get('stdout', '')
                     total = total[-1000:] if total and len(total) > 1000 else total
+
                     host_data[task['task'].get('name', '')] = {
                         'msg': '%s  %s' % (item_msg if item_msg != "" else msg, "=>" + total if total != "" else "")}
         logger.info(result)
