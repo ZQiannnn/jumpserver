@@ -14,6 +14,7 @@ from assets.models.user import AssetUser
 from common.utils import get_signer, get_logger
 from ops.models import Task, AdHoc, AdHocRunHistory
 from users.models import User
+from .utils import close_old_connections
 from .ansible import PlayBookRunner, get_default_options
 from .ansible.inventory import PlaybookInventory
 
@@ -47,6 +48,7 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
+    @close_old_connections
     def run(self, current_user=None, ids=None, record=True):
         if self.latest_adhoc:
             return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record)
@@ -80,9 +82,11 @@ class Playbook(AdHoc):
         return inventory
 
     @property
+    @close_old_connections
     def playbook_task(self):
         return PlayBookTask.objects.get(id=self.task.id)
 
+    @close_old_connections
     def run(self, current_user=None, ids=None, record=True):
         self.ids = ids
         self.current_user = User.objects.get(id=current_user)
@@ -94,6 +98,7 @@ class Playbook(AdHoc):
 
             return result, summary
 
+    @close_old_connections
     def _run_and_record(self):
         history = AdHocRunHistory(adhoc=self, task=self.task)
         time_start = time.time()
@@ -168,6 +173,7 @@ class Playbook(AdHoc):
         print(result)
         return result
 
+    @close_old_connections
     def _run_only(self):
         options = get_default_options()
         options = options._replace(playbook_path=self.playbook_path)
