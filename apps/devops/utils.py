@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+
 from assets import const
 from .models import Playbook
 import os
@@ -51,18 +52,4 @@ def create_update_task_playbook(task, user):
     return task, created
 
 
-def close_old_connections(func):
-    # 获取当前线程中的数据库连接
-    from django.db import connections
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            for connection in connections.all():
-                # 检查连接可用性，并关闭不可用连接
-                conn.close_if_unusable_or_obsolete()
-            return func(*args, **kwargs)
-        finally:
-            for connection in connections.all():
-                # 检查连接可用性，并关闭不可用连接
-                conn.close_if_unusable_or_obsolete()
-    return wrapper
+

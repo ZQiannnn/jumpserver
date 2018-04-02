@@ -3,7 +3,7 @@
 import json
 import time
 
-from django.db import models
+from django.db import models, close_old_connections
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
@@ -14,7 +14,6 @@ from assets.models.user import AssetUser
 from common.utils import get_signer, get_logger
 from ops.models import Task, AdHoc, AdHocRunHistory
 from users.models import User
-from .utils import close_old_connections
 from .ansible import PlayBookRunner, get_default_options
 from .ansible.inventory import PlaybookInventory
 
@@ -48,8 +47,8 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
-    @close_old_connections
     def run(self, current_user=None, ids=None, record=True):
+        close_old_connections()
         if self.latest_adhoc:
             return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record)
         else:
@@ -82,12 +81,12 @@ class Playbook(AdHoc):
         return inventory
 
     @property
-    @close_old_connections
     def playbook_task(self):
+        close_old_connections()
         return PlayBookTask.objects.get(id=self.task.id)
 
-    @close_old_connections
     def run(self, current_user=None, ids=None, record=True):
+        close_old_connections()
         self.ids = ids
         self.current_user = User.objects.get(id=current_user)
         if record:
@@ -98,7 +97,6 @@ class Playbook(AdHoc):
 
             return result, summary
 
-    @close_old_connections
     def _run_and_record(self):
         history = AdHocRunHistory(adhoc=self, task=self.task)
         time_start = time.time()
@@ -118,6 +116,7 @@ class Playbook(AdHoc):
             traceback.print_exc()
             return {}, {"dark": {"all": {"playbook": {"msg": str(e)}}}, "contacted": []}
         finally:
+            close_old_connections()
             history.date_finished = timezone.now()
             history.timedelta = time.time() - time_start
             history.save()
@@ -173,7 +172,6 @@ class Playbook(AdHoc):
         print(result)
         return result
 
-    @close_old_connections
     def _run_only(self):
         options = get_default_options()
         options = options._replace(playbook_path=self.playbook_path)
@@ -183,6 +181,7 @@ class Playbook(AdHoc):
         try:
             runner = PlayBookRunner(self.inventory, options)
             result, output = runner.run()
+            close_old_connections()
             summary = self._clean_result(output)
             self.is_running = False
             self.save()
@@ -191,6 +190,7 @@ class Playbook(AdHoc):
             import traceback
             traceback.print_exc()
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
+            close_old_connections()
             self.is_running = False
             self.save()
             print(str(e))
