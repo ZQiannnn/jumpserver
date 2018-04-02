@@ -336,6 +336,7 @@ CELERY_BROKER_URL = 'redis://:%(password)s@%(host)s:%(port)s/3' % {
     'host': CONFIG.REDIS_HOST or '127.0.0.1',
     'port': CONFIG.REDIS_PORT or 6379,
 }
+BROKER_POOL_LIMIT = 0
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
