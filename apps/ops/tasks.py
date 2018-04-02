@@ -1,10 +1,12 @@
 # coding: utf-8
+
+
 from celery import shared_task, subtask
 
 from common.utils import get_logger, get_object_or_none
 from .models import Task
 from devops.models import PlayBookTask, Playbook
-
+import django
 logger = get_logger(__file__)
 
 
@@ -21,7 +23,7 @@ def run_ansible_task(task_id, current_user=None, ids=None, callback=None, **kwar
     :param current_user: 当前用户
     :return:
     """
-
+    django.db.connection.close()
     task = get_object_or_none(PlayBookTask, id=task_id)
     if task:
         playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
