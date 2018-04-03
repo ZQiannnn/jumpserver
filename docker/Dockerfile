@@ -20,6 +20,7 @@ RUN curl -o ~/requirements.txt https://raw.githubusercontent.com/ZQiannnn/jumpse
 RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/requirements.txt
 ENV BUILD_NUM=28
 RUN curl -o ~/coco_requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt
+RUN ls /root
 RUN source /opt/py3/bin/activate && pip install -i -r ~/coco_requirements.txt
 
 
