@@ -16,10 +16,11 @@ RUN curl -o  ~/coco_rpm_requirements.txt https://raw.githubusercontent.com/jumps
 RUN yum -y install $(cat ~/rpm_requirements.txt) && yum -y install $(cat ~/coco_rpm_requirements.txt)
 
 # 4. 安装pip依赖
-ENV BUILD_NUM=28
 RUN curl -o ~/requirements.txt https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/requirements.txt
 RUN curl -o ~/coco_requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt
-RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  --upgrade pip && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/requirements.txt &&  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/coco_requirements.txt
+RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/requirements.txt
+ENV BUILD_NUM=28
+RUN source /opt/py3/bin/activate && pip install -i -r ~/coco_requirements.txt
 
 
 # 3. 下载包并解压
