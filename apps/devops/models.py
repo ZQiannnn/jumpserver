@@ -154,8 +154,10 @@ class Playbook(AdHoc):
 
                         for i, res in enumerate(detail['results']):
                             # 获取每个的消息
-                            del res['stdout']
-                            del res['stdout_lines']
+                            if res['stdout']:
+                                del res['stdout']
+                            if res['stdout_lines']:
+                                del res['stdout_lines']
                             logger.info(res)
                             total = res.get('stderr') if res.get('stderr', '') != '' else res.get('msg', '')
                             total = total[-1000:] if total and len(total) > 1000 else total
