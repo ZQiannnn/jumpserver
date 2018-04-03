@@ -21,7 +21,7 @@ RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.ed
 ENV BUILD_NUM=28
 RUN curl -o ~/coco_requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt
 RUN cat  /root/coco_requirements.txt
-RUN source /opt/py3/bin/activate && pip install -i -r ~/coco_requirements.txt
+RUN source /opt/py3/bin/activate && pip install -r ~/coco_requirements.txt
 
 
 # 3. 下载包并解压
