@@ -70,3 +70,4 @@ urllib3==1.22
 vine==1.1.4
 jsonfield
 django-separatedvaluesfield
+psycopg2-binary

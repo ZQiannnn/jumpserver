@@ -49,7 +49,7 @@ class PlayBookTask(Task):
             return password_raw_ == self.password
 
     def run(self, current_user=None, ids=None, record=True):
-        django.db.connection.close()
+        # django.db.connection.close()
         if self.latest_adhoc:
             return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record)
         else:
@@ -83,11 +83,11 @@ class Playbook(AdHoc):
 
     @property
     def playbook_task(self):
-        django.db.connection.close()
+        # django.db.connection.close()
         return PlayBookTask.objects.get(id=self.task.id)
 
     def run(self, current_user=None, ids=None, record=True):
-        django.db.connection.close()
+        # django.db.connection.close()
         self.ids = ids
         self.current_user = User.objects.get(id=current_user)
         if record:
@@ -117,7 +117,7 @@ class Playbook(AdHoc):
             traceback.print_exc()
             return {}, {"dark": {"all": {"playbook": {"msg": str(e)}}}, "contacted": []}
         finally:
-            django.db.connection.close()
+            # django.db.connection.close()
             history.date_finished = timezone.now()
             history.timedelta = time.time() - time_start
             history.save()
@@ -182,7 +182,7 @@ class Playbook(AdHoc):
         try:
             runner = PlayBookRunner(self.inventory, options)
             result, output = runner.run()
-            django.db.connection.close()
+            # django.db.connection.close()
             summary = self._clean_result(output)
             self.is_running = False
             self.save()
@@ -191,7 +191,7 @@ class Playbook(AdHoc):
             import traceback
             traceback.print_exc()
             logger.error("Failed run adhoc {}, {}".format(self.task.name, e))
-            django.db.connection.close()
+            # django.db.connection.close()
             self.is_running = False
             self.save()
             print(str(e))

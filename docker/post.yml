@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: postgres:10.3-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=jumpserver
+      - POSTGRES_USER=jumpserver
+      - POSTGRES_DB=jumpserver
+    volumes:
+       - /Users/zhang/Work/WorkSpaces/DevOpsWorkSpace/jumpserver-ansible/docker/postgresql/data:/var/lib/postgresql/data
+    command: "postgres -c 'shared_buffers=256MB' -c 'max_connections=200'"
+    ports:
+      - 5432:5432
+#    entrypoint: postgres -c 'shared_buffers=256MB' -c 'max_connections=200'

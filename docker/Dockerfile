@@ -16,6 +16,7 @@ RUN curl -o  ~/coco_rpm_requirements.txt https://raw.githubusercontent.com/jumps
 RUN yum -y install $(cat ~/rpm_requirements.txt) && yum -y install $(cat ~/coco_rpm_requirements.txt)
 
 # 4. 安装pip依赖
+ENV BUILD_NUM=28
 RUN curl -o ~/requirements.txt https://raw.githubusercontent.com/ZQiannnn/jumpserver-ansible/feature/feature-ansible-0.5.0/requirements/requirements.txt
 RUN curl -o ~/coco_requirements.txt https://raw.githubusercontent.com/jumpserver/coco/master/requirements/requirements.txt
 RUN source /opt/py3/bin/activate && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  --upgrade pip && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/requirements.txt &&  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  -r ~/coco_requirements.txt
@@ -26,7 +27,6 @@ WORKDIR /opt/
 RUN wget https://github.com/jumpserver/coco/archive/dev.zip -O /opt/coco.zip
 RUN wget https://github.com/jumpserver/luna/releases/download/0.5-rel/luna.tar.gz -O /opt/luna.tar.gz
 
-ENV BUILD_NUM=27
 RUN wget https://github.com/ZQiannnn/jumpserver-ansible/archive/feature/feature-ansible-0.5.0.zip -O /opt/jumpserver.zip
 RUN unzip coco.zip && mv coco-dev coco && unzip jumpserver.zip && mv jumpserver-ansible-feature-feature-ansible-0.5.0 jumpserver && tar xzf luna.tar.gz
 
