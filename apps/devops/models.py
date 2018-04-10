@@ -154,9 +154,9 @@ class Playbook(AdHoc):
 
                         for i, res in enumerate(detail['results']):
                             # 获取每个的消息
-                            if res['stdout']:
+                            if 'stdout' in res:
                                 del res['stdout']
-                            if res['stdout_lines']:
+                            if 'stdout_lines' in res:
                                 del res['stdout_lines']
                             logger.info(res)
                             total = res.get('stderr') if res.get('stderr', '') != '' else res.get('msg', '')
