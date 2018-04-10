@@ -195,7 +195,7 @@
         var finished = true;
         let success = function (data) {
             console.log(data)
-            if (data.is_running) {
+            if (typeof(data) == "undefined" || data.is_running) {
                 finished = false;
                 $('#bar').show()
                 setTimeout(function () {
@@ -205,7 +205,7 @@
                         flash_message: false,
                         success: success
                     })
-                },5000)
+                }, 5000)
             } else {
                 $('#running').html('<b>{% trans "Over" %}</b>')
                 if (finished) {
@@ -221,7 +221,8 @@
             url: the_url,
             method: 'GET',
             flash_message: false,
-            success: success
+            success: success,
+            error: success
         })
     </script>
 
