@@ -47,6 +47,7 @@ COPY ansible.cfg /etc/ansible/ansible.cfg
 COPY hosts /etc/ansible/hosts
 COPY entrypoint.sh /bin/entrypoint.sh
 RUN chmod +x /bin/entrypoint.sh
+RUN ssh-keygen -t rsa -C "Jumpserver"
 
 EXPOSE 2222 80
 ENTRYPOINT ["entrypoint.sh"]
