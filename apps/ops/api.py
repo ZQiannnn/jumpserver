@@ -9,7 +9,7 @@ from rest_framework import viewsets, generics, status
 from rest_framework.views import Response
 
 from common.utils import get_object_or_none
-from devops.models import Playbook
+from devops.models import Playbook, PlayBookTask
 from users.permissions import IsValidUser
 from .hands import IsSuperUser
 from .models import Task, AdHoc, AdHocRunHistory
@@ -31,11 +31,11 @@ class TaskRun(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         task = self.get_object()
         playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
+        playbook_task = get_object_or_none(PlayBookTask, id=task.id)
         if playbook and playbook.is_running:
             return Response('任务正在执行中，请查看作业中心...', status=status.HTTP_400_BAD_REQUEST)
         if playbook:
-            print(playbook.tags)
-            tags = playbook.tags
+            tags = playbook_task.tags if playbook_task else None
             # run_ansible_task.delay(str(task.id), request.user.id, json.loads(request.GET.get('ids')))
             _thread.start_new_thread(run_ansible_task,
                                      (str(task.id), request.user.id, json.loads(request.GET.get('ids'))), tags)
