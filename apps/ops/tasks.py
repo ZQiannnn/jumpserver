@@ -18,6 +18,7 @@ def rerun_task():
 @shared_task
 def run_ansible_task(task_id, current_user=None, ids=None, tags=None, callback=None, **kwargs):
     """
+    :param tags:
     :param ids:
     :param task_id: is the tasks serialized data
     :param callback: callback function name

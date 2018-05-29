@@ -38,7 +38,7 @@ class TaskRun(generics.RetrieveAPIView):
             tags = playbook_task.tags if playbook_task else None
             # run_ansible_task.delay(str(task.id), request.user.id, json.loads(request.GET.get('ids')))
             _thread.start_new_thread(run_ansible_task,
-                                     (str(task.id), request.user.id, json.loads(request.GET.get('ids'))), tags)
+                                     (str(task.id), request.user.id, json.loads(request.GET.get('ids')), tags))
 
         else:
             run_ansible_task.delay(str(task.id), request.user.id)
