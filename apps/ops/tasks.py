@@ -7,6 +7,7 @@ from common.utils import get_logger, get_object_or_none
 from .models import Task
 from devops.models import PlayBookTask, Playbook
 import django
+
 logger = get_logger(__file__)
 
 
@@ -15,7 +16,7 @@ def rerun_task():
 
 
 @shared_task
-def run_ansible_task(task_id, current_user=None, ids=None, callback=None, **kwargs):
+def run_ansible_task(task_id, current_user=None, ids=None, tags=None, callback=None, **kwargs):
     """
     :param ids:
     :param task_id: is the tasks serialized data
@@ -29,7 +30,7 @@ def run_ansible_task(task_id, current_user=None, ids=None, callback=None, **kwar
         playbook = get_object_or_none(Playbook, id=task.latest_adhoc.id)
         playbook.is_running = True
         playbook.save()
-        result = task.run(current_user=current_user, ids=ids)
+        result = task.run(current_user=current_user, ids=ids, tags=tags)
         if callback is not None:
             subtask(callback).delay(result, task_name=task.name)
         return result

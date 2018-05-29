@@ -48,10 +48,11 @@ class PlayBookTask(Task):
         else:
             return password_raw_ == self.password
 
-    def run(self, current_user=None, ids=None, record=True):
+    def run(self, current_user=None, ids=None, tags=None, record=True):
         # django.db.connection.close()
         if self.latest_adhoc:
-            return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record)
+            return Playbook.objects.get(id=self.latest_adhoc.id).run(current_user=current_user, ids=ids, record=record,
+                                                                     tags=tags)
         else:
             return {'error': 'No adhoc'}
 
@@ -86,9 +87,10 @@ class Playbook(AdHoc):
         # django.db.connection.close()
         return PlayBookTask.objects.get(id=self.task.id)
 
-    def run(self, current_user=None, ids=None, record=True):
+    def run(self, current_user=None, ids=None, tags=None, record=True):
         # django.db.connection.close()
         self.ids = ids
+        self.tags = tags
         self.current_user = User.objects.get(id=current_user)
         if record:
             result, summary = self._run_and_record()
@@ -178,7 +180,7 @@ class Playbook(AdHoc):
     def _run_only(self):
         options = get_default_options()
         options = options._replace(playbook_path=self.playbook_path)
-        options = options._replace(tags=self.playbook_task.tags if self.playbook_task.tags else [])
+        options = options._replace(tags=self.tags if self.tags else [])
         print(options)
         logger.info(options)
         try:
